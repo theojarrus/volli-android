@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/rootView"
+    tools:context=".HomeActivity">
+
+    <LinearLayout
+        android:layout_width="@dimen/main_block_center_width"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/main_block_bottom"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_block_top">
+
+        <LinearLayout
+            android:id="@+id/main_block_center_1"
+            android:layout_width="@dimen/main_block_center_width"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/main_block_center_padding"
+            android:background="@drawable/main_block_center">
+
+            <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+                android:id="@+id/calendarView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:paddingTop="10dp"
+                android:paddingRight="5dp"
+                app:mcv_selectionColor="@color/blue" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/main_block_center_3"
+            android:layout_width="@dimen/main_block_center_width"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/main_block_center_padding"
+            android:layout_weight="1"
+            android:background="@drawable/main_block_center">
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:ignore="UselessParent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/main_block_center_padding"
+                        android:text="@string/example_note_date"
+                        android:textSize="25sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:paddingLeft="12dp"
+                        android:paddingRight="12dp"
+                        android:paddingBottom="@dimen/main_block_center_padding"
+                        android:text="@string/example_note_title"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:paddingLeft="12dp"
+                        android:paddingRight="12dp"
+                        android:paddingBottom="@dimen/main_block_center_padding"
+                        android:text="@string/example_note_text" />
+
+                </LinearLayout>
+
+            </ScrollView>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/main_block_center_2"
+            android:layout_width="@dimen/main_block_center_width"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/main_block_center_padding"
+            android:layout_marginBottom="@dimen/main_block_center_padding"
+            android:background="@drawable/main_block_center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/main_block_center_padding"
+            android:paddingBottom="@dimen/main_block_center_padding">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/text_control_tip" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/main_block_top"
+        android:layout_width="@dimen/main_block_center_width"
+        android:layout_height="@dimen/main_block_top_bottom_height"
+        android:background="@drawable/main_block_top"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/main_text_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/read"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintLeft_toLeftOf="@id/main_block_top"
+        app:layout_constraintRight_toRightOf="@id/main_block_top"
+        app:layout_constraintTop_toTopOf="@id/main_block_top"
+        app:layout_constraintBottom_toBottomOf="@id/main_block_top" />
+
+    <View
+        android:id="@+id/main_block_right"
+        android:layout_width="@dimen/main_block_top_bottom_height"
+        android:layout_height="@dimen/main_block_left_right_height"
+        android:background="@drawable/main_block_right"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/main_text_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:rotation="-90"
+        android:text="@string/edit"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintLeft_toLeftOf="@id/main_block_right"
+        app:layout_constraintRight_toRightOf="@id/main_block_right"
+        app:layout_constraintTop_toTopOf="@id/main_block_right"
+        app:layout_constraintBottom_toBottomOf="@id/main_block_right" />
+
+    <View
+        android:id="@+id/main_block_bottom"
+        android:layout_width="@dimen/main_block_center_width"
+        android:layout_height="@dimen/main_block_top_bottom_height"
+        android:background="@drawable/main_block_bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <TextView
+        android:id="@+id/main_text_bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/create"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintLeft_toLeftOf="@id/main_block_bottom"
+        app:layout_constraintRight_toRightOf="@id/main_block_bottom"
+        app:layout_constraintTop_toTopOf="@id/main_block_bottom"
+        app:layout_constraintBottom_toBottomOf="@id/main_block_bottom"/>
+
+    <View
+        android:id="@+id/main_block_left"
+        android:layout_width="@dimen/main_block_top_bottom_height"
+        android:layout_height="@dimen/main_block_left_right_height"
+        android:background="@drawable/main_block_left"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/main_text_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:rotation="-90"
+        android:text="@string/settings"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintLeft_toLeftOf="@id/main_block_left"
+        app:layout_constraintRight_toRightOf="@id/main_block_left"
+        app:layout_constraintTop_toTopOf="@id/main_block_left"
+        app:layout_constraintBottom_toBottomOf="@id/main_block_left" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

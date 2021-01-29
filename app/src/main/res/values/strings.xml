@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Volli</string>
+    
+    <string name="read">Прочитать</string>
+    <string name="edit">Редактировать</string>
+    <string name="create">Создать</string>
+    <string name="settings">Настройки</string>
+    <string name="changed">Изменено</string>
+
+    <string name="text_control_tip">Наклоните устройство для\nвыбора действия</string>
+
+    <string name="example_note_date">24.02.2020</string>
+    <string name="example_note_title">Домашнее задание</string>
+    <string name="example_note_text">Выполнить задание по литературе до завтрашнего дня.</string>
+    
+</resources>

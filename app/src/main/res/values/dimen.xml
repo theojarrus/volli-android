@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="main_block_center_width">230dp</dimen>
+    <dimen name="main_block_center_height">52dp</dimen>
+    <dimen name="main_block_center_padding">20dp</dimen>
+    <dimen name="main_block_top_bottom_height">72dp</dimen>
+    <dimen name="main_block_left_right_height">460dp</dimen>
+
+</resources>

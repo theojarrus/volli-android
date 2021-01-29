@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Theme Colors -->
+    <color name="blue">#4284f4</color>
+    <color name="green">#34a752</color>
+    <color name="yellow">#f5c400</color>
+    <color name="orange">#f89c38</color>
+    <color name="red">#ea4235</color>
+
+    <color name="white">#ffffff</color>
+    <color name="light_gray">#e0e0e0</color>
+    <color name="gray">#949494</color>
+    <color name="black">#484848</color>
+
+</resources>
