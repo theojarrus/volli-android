@@ -7,4 +7,6 @@
     <dimen name="main_block_top_bottom_height">72dp</dimen>
     <dimen name="main_block_left_right_height">460dp</dimen>
 
+    <dimen name="icon_empty">108dp</dimen>
+
 </resources>

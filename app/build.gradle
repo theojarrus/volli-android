@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -38,6 +39,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     // Libraries
+    implementation platform('com.google.firebase:firebase-bom:26.4.0')
     implementation 'com.github.prolificinteractive:material-calendarview:2.0.0'
+    implementation 'com.stephentuso:welcome:1.4.1'
 
 }

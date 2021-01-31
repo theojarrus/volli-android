@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "419118879776",
+    "project_id": "volli-app",
+    "storage_bucket": "volli-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:419118879776:android:a52893e5db2bd1236dd845",
+        "android_client_info": {
+          "package_name": "com.theost.volli"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "419118879776-qf9rvk2d91qcm37u2h0r44aptdcq8f90.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.theost.volli",
+            "certificate_hash": "26b764ade902e944377c93824a56cf0891b9062b"
+          }
+        },
+        {
+          "client_id": "419118879776-a2fammaho9av64sicmjh2k62vqifr343.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSOFbTnCMitEtPMp1xJ-l6PulYjfxJh0s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "419118879776-a2fammaho9av64sicmjh2k62vqifr343.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.stephentuso.welcome.WelcomeHelper;
 import com.theost.volli.utils.AccelerometerUtils;
 
 public class HomeActivity extends AppCompatActivity {
@@ -43,6 +44,9 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        showWelcomeScreen(savedInstanceState);
+
+        setTheme(R.style.Theme_Volli);
         setContentView(R.layout.activity_home);
         activity = this;
 
@@ -177,5 +181,10 @@ public class HomeActivity extends AppCompatActivity {
         }
 
     };
+
+    private void showWelcomeScreen(Bundle savedInstanceState) {
+        WelcomeHelper sampleWelcomeScreen = new WelcomeHelper(this, WelcomeActivity.class);
+        sampleWelcomeScreen.show(savedInstanceState);
+    }
 
 }

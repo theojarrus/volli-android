@@ -12,5 +12,9 @@
     <string name="example_note_date">24.02.2020</string>
     <string name="example_note_title">Домашнее задание</string>
     <string name="example_note_text">Выполнить задание по литературе до завтрашнего дня.</string>
+
+    <string name="welcome_app">Добро пожаловать в Volli!</string>
+    <string name="welcome_blank_title">Заголовок</string>
+    <string name="welcome_blank_text">Здесь будет текст</string>
     
 </resources>
