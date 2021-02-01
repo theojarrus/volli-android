@@ -4,7 +4,7 @@
     <item android:drawable="@color/white" />
     <item>
         <bitmap
-            android:src="@mipmap/ic_launcher"
+            android:src="@mipmap/ic_launcher_round"
             android:gravity="center" />
     </item>
 </layer-list>

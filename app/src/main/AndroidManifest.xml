@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.theost.volli">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
         android:allowBackup="true"
         android:fullBackupContent="true"
@@ -20,6 +21,8 @@
         </activity>
         <activity android:name=".WelcomeActivity"
             android:theme="@style/WelcomeScreenTheme"/>
+        <activity android:name=".AuthActivity"
+            android:theme="@style/Theme.Volli.Auth"/>
     </application>
 
 </manifest>

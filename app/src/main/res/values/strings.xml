@@ -16,5 +16,20 @@
     <string name="welcome_app">Добро пожаловать в Volli!</string>
     <string name="welcome_blank_title">Заголовок</string>
     <string name="welcome_blank_text">Здесь будет текст</string>
-    
+
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Пароль</string>
+    <string name="auth_sign_in">Войти</string>
+    <string name="auth_back">Назад</string>
+    <string name="auth_name">Как вас зовут?</string>
+    <string name="auth_sign_up">Зарегистрироваться</string>
+    <string name="auth_forgot_password">Забыли пароль?</string>
+
+    <string name="feature_not_available">К сожалению, функция пока недоступна</string>
+    <string name="network_not_available">Пожалуйста, проверьте подключение к сети!</string>
+    <string name="password_is_too_short">Пароль должен содержать минимум 6 символов</string>
+    <string name="wrong_email">Неверный адрес</string>
+    <string name="wrong_password">Неверный пароль</string>
+    <string name="wrong_name">Неверное имя</string>
+
 </resources>

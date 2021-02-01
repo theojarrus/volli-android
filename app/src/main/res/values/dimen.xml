@@ -8,5 +8,8 @@
     <dimen name="main_block_left_right_height">460dp</dimen>
 
     <dimen name="icon_empty">108dp</dimen>
+    <dimen name="auth_padding_in">20dp</dimen>
+    <dimen name="auth_padding_out">8dp</dimen>
+    <dimen name="auth_padding_logo">40dp</dimen>
 
 </resources>

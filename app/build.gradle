@@ -41,6 +41,7 @@ dependencies {
     // Libraries
     implementation platform('com.google.firebase:firebase-bom:26.4.0')
     implementation 'com.github.prolificinteractive:material-calendarview:2.0.0'
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.0'
     implementation 'com.stephentuso:welcome:1.4.1'
 
 }

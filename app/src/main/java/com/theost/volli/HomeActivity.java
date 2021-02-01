@@ -1,6 +1,8 @@
 package com.theost.volli;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -11,12 +13,14 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.stephentuso.welcome.WelcomeHelper;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.theost.volli.utils.AccelerometerUtils;
+import com.theost.volli.utils.DisplayUtils;
+import com.theost.volli.utils.PrefUtils;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -36,7 +40,11 @@ public class HomeActivity extends AppCompatActivity {
     private TextView mTextBottom;
     private TextView mTextLeft;
 
+    private MaterialCalendarView calendarView;
+
     private int[] orientationCacheData;
+
+    private String userName;
 
     private boolean isAccelerometerEnabled;
     private boolean isTouchListenerEnabled;
@@ -44,13 +52,17 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        showWelcomeScreen(savedInstanceState);
+
+        SharedPreferences preferences = PrefUtils.getSharedPreferences(this);
+        userName = preferences.getString(PrefUtils.PREFERENCES_KEY_USERNAME, "");
+        if (userName.equals("")) startAuthActivity();
 
         setTheme(R.style.Theme_Volli);
         setContentView(R.layout.activity_home);
         activity = this;
 
         rootView = findViewById(R.id.rootView);
+        calendarView = findViewById(R.id.calendarView);
         mBlockTop = findViewById(R.id.main_block_top);
         mBlockRight = findViewById(R.id.main_block_right);
         mBlockBottom = findViewById(R.id.main_block_bottom);
@@ -118,7 +130,12 @@ public class HomeActivity extends AppCompatActivity {
         } else {
             enableAccelerometer();
         }
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        DisplayUtils.showToast(this, message);
+
+        calendarView.setDateSelected(CalendarDay.from(2021, 2, 25), true);
+        calendarView.setDateSelected(CalendarDay.from(2021, 2, 11), true);
+        calendarView.setDateSelected(CalendarDay.from(2021, 2, 13), true);
+        calendarView.setDateSelected(CalendarDay.from(2021, 2, 16), true);
     }
 
     private void onMovementDetected(int movement) {
@@ -182,9 +199,9 @@ public class HomeActivity extends AppCompatActivity {
 
     };
 
-    private void showWelcomeScreen(Bundle savedInstanceState) {
-        WelcomeHelper sampleWelcomeScreen = new WelcomeHelper(this, WelcomeActivity.class);
-        sampleWelcomeScreen.show(savedInstanceState);
+    private void startAuthActivity() {
+        Intent intent = new Intent(this, AuthActivity.class);
+        startActivity(intent);
     }
 
 }
