@@ -29,7 +29,6 @@
     <string name="network_not_available">Пожалуйста, проверьте подключение к сети!</string>
     <string name="password_is_too_short">Пароль должен содержать минимум 6 символов</string>
     <string name="wrong_email">Неверный адрес</string>
-    <string name="wrong_password">Неверный пароль</string>
     <string name="wrong_name">Неверное имя</string>
 
 </resources>

@@ -92,7 +92,7 @@ public class AuthActivity extends AppCompatActivity {
                         }
                         return true;
                     } else {
-                        passwordLayout.setError(getString(R.string.wrong_password));
+                        passwordLayout.setError(getString(R.string.password_is_too_short));
                     }
                 } else {
                     emailLayout.setError(getString(R.string.wrong_email));
