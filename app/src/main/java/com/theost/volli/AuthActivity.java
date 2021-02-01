@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,6 +32,7 @@ public class AuthActivity extends AppCompatActivity {
 
     private MaterialButton signInButton;
     private MaterialButton backButton;
+    private TextView forgotPasswordButton;
 
     private String authUsername;
     private String authEmail;
@@ -49,11 +51,12 @@ public class AuthActivity extends AppCompatActivity {
 
         signInButton = findViewById(R.id.sign_in_button);
         backButton = findViewById(R.id.back_button);
+        forgotPasswordButton = findViewById(R.id.forgot_password_button);
 
         signInButton.setOnClickListener(v -> onSignIn());
         backButton.setOnClickListener(v -> onBack());
+        forgotPasswordButton.setOnClickListener(v -> onForgotPassword());
         findViewById(R.id.sign_up_button).setOnClickListener(v -> onSignUp());
-        findViewById(R.id.forgot_password_button).setOnClickListener(v -> onForgotPassword());
     }
 
     @Override
@@ -111,12 +114,14 @@ public class AuthActivity extends AppCompatActivity {
             emailLayout.setVisibility(View.GONE);
             passwordLayout.setVisibility(View.GONE);
             signInButton.setVisibility(View.GONE);
+            forgotPasswordButton.setVisibility(View.GONE);
             usernameLayout.setVisibility(View.VISIBLE);
             backButton.setVisibility(View.VISIBLE);
         } else {
             emailLayout.setVisibility(View.VISIBLE);
             passwordLayout.setVisibility(View.VISIBLE);
             signInButton.setVisibility(View.VISIBLE);
+            forgotPasswordButton.setVisibility(View.VISIBLE);
             usernameLayout.setVisibility(View.GONE);
             backButton.setVisibility(View.GONE);
         }

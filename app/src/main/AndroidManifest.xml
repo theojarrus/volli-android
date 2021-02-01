@@ -20,8 +20,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".WelcomeActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/WelcomeScreenTheme"/>
         <activity android:name=".AuthActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Volli.Auth"/>
     </application>
 
