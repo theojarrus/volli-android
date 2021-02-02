@@ -105,7 +105,7 @@ public class AuthActivity extends AppCompatActivity {
     private void resetPassword(String email) {
         firebaseAuth.sendPasswordResetEmail(email).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                DisplayUtils.showToast(this, getString(R.string.auth_restore_password) + email);
+                DisplayUtils.showToast(this, getString(R.string.auth_restore_password) + " " + email);
             } else {
                 displayAuthError(task);
             }
