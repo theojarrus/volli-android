@@ -38,7 +38,8 @@
         android:layout_height="wrap_content"
         android:hint="@string/auth_password"
         android:paddingBottom="@dimen/auth_padding_out"
-        app:errorEnabled="true">
+        app:errorEnabled="true"
+        app:passwordToggleEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
