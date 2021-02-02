@@ -2,9 +2,9 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/rootView"
     tools:context=".HomeActivity">
 
     <LinearLayout
@@ -30,8 +30,8 @@
                 android:paddingLeft="5dp"
                 android:paddingTop="10dp"
                 android:paddingRight="5dp"
-                app:mcv_selectionMode="none"
-                app:mcv_selectionColor="@color/blue" />
+                app:mcv_selectionColor="@color/blue"
+                app:mcv_selectionMode="none" />
 
         </LinearLayout>
 
@@ -41,49 +41,36 @@
             android:layout_height="0dp"
             android:layout_marginTop="@dimen/main_block_center_padding"
             android:layout_weight="1"
-            android:background="@drawable/main_block_center">
+            android:gravity="center_horizontal"
+            android:background="@drawable/main_block_center"
+            android:orientation="vertical">
 
-            <ScrollView
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/main_block_center_padding"
+                android:text="@string/example_note_date"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:ignore="UselessParent">
+                android:gravity="center_horizontal"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:paddingBottom="@dimen/main_block_center_padding"
+                android:text="@string/example_note_title"
+                android:textSize="18sp" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="@dimen/main_block_center_padding"
-                        android:text="@string/example_note_date"
-                        android:textSize="25sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_horizontal"
-                        android:paddingLeft="12dp"
-                        android:paddingRight="12dp"
-                        android:paddingBottom="@dimen/main_block_center_padding"
-                        android:text="@string/example_note_title"
-                        android:textSize="18sp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_horizontal"
-                        android:paddingLeft="12dp"
-                        android:paddingRight="12dp"
-                        android:paddingBottom="@dimen/main_block_center_padding"
-                        android:text="@string/example_note_text" />
-
-                </LinearLayout>
-
-            </ScrollView>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:paddingBottom="@dimen/main_block_center_padding"
+                android:text="@string/example_note_text" />
 
         </LinearLayout>
 
@@ -126,10 +113,10 @@
         android:text="@string/read"
         android:textColor="@color/white"
         android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@id/main_block_top"
         app:layout_constraintLeft_toLeftOf="@id/main_block_top"
         app:layout_constraintRight_toRightOf="@id/main_block_top"
-        app:layout_constraintTop_toTopOf="@id/main_block_top"
-        app:layout_constraintBottom_toBottomOf="@id/main_block_top" />
+        app:layout_constraintTop_toTopOf="@id/main_block_top" />
 
     <View
         android:id="@+id/main_block_right"
@@ -149,10 +136,10 @@
         android:text="@string/edit"
         android:textColor="@color/white"
         android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@id/main_block_right"
         app:layout_constraintLeft_toLeftOf="@id/main_block_right"
         app:layout_constraintRight_toRightOf="@id/main_block_right"
-        app:layout_constraintTop_toTopOf="@id/main_block_right"
-        app:layout_constraintBottom_toBottomOf="@id/main_block_right" />
+        app:layout_constraintTop_toTopOf="@id/main_block_right" />
 
     <View
         android:id="@+id/main_block_bottom"
@@ -171,10 +158,10 @@
         android:text="@string/create"
         android:textColor="@color/white"
         android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@id/main_block_bottom"
         app:layout_constraintLeft_toLeftOf="@id/main_block_bottom"
         app:layout_constraintRight_toRightOf="@id/main_block_bottom"
-        app:layout_constraintTop_toTopOf="@id/main_block_bottom"
-        app:layout_constraintBottom_toBottomOf="@id/main_block_bottom"/>
+        app:layout_constraintTop_toTopOf="@id/main_block_bottom" />
 
     <View
         android:id="@+id/main_block_left"
@@ -194,9 +181,9 @@
         android:text="@string/settings"
         android:textColor="@color/white"
         android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@id/main_block_left"
         app:layout_constraintLeft_toLeftOf="@id/main_block_left"
         app:layout_constraintRight_toRightOf="@id/main_block_left"
-        app:layout_constraintTop_toTopOf="@id/main_block_left"
-        app:layout_constraintBottom_toBottomOf="@id/main_block_left" />
+        app:layout_constraintTop_toTopOf="@id/main_block_left" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

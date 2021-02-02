@@ -1,14 +1,9 @@
 package com.theost.volli;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,18 +13,20 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
-import com.theost.volli.utils.AccelerometerUtils;
-import com.theost.volli.utils.DisplayUtils;
+import com.theost.volli.utils.AnimationUtils;
 import com.theost.volli.utils.PrefUtils;
+import com.theost.volli.widgets.OnGestureListener;
 
 public class HomeActivity extends AppCompatActivity {
 
-    private static final int ROLL_DETECT_ANGLE = 50;
+    private static final int BLOCK_ANIMATION_DURATION = 800;
+    private static final int TEXT_ANIMATION_DURATION = 300;
+    private static final int TEXT_ANIMATION_DELAY = 800;
+    private static final float BLOCK_ANIMATION_SCALE = 2f;
 
-    private SensorManager sensorManager;
-    private AppCompatActivity activity;
+    private GestureDetector gestureDetector;
+    private MaterialCalendarView calendarView;
 
-    private View rootView;
     private View mBlockTop;
     private View mBlockRight;
     private View mBlockBottom;
@@ -40,14 +37,9 @@ public class HomeActivity extends AppCompatActivity {
     private TextView mTextBottom;
     private TextView mTextLeft;
 
-    private MaterialCalendarView calendarView;
-
-    private int[] orientationCacheData;
+    private boolean isTouchLocked;
 
     private String userName;
-
-    private boolean isAccelerometerEnabled;
-    private boolean isTouchListenerEnabled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,9 +51,7 @@ public class HomeActivity extends AppCompatActivity {
 
         setTheme(R.style.Theme_Volli);
         setContentView(R.layout.activity_home);
-        activity = this;
 
-        rootView = findViewById(R.id.rootView);
         calendarView = findViewById(R.id.calendarView);
         mBlockTop = findViewById(R.id.main_block_top);
         mBlockRight = findViewById(R.id.main_block_right);
@@ -72,132 +62,67 @@ public class HomeActivity extends AppCompatActivity {
         mTextBottom = findViewById(R.id.main_text_bottom);
         mTextLeft = findViewById(R.id.main_text_left);
 
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        enableAccelerometer();
-        enableTouchListener();
+        gestureDetector = new GestureDetector(this, gestureListener);
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        disableAccelerometer();
-        disableTouchListener();
+    public boolean onTouchEvent(MotionEvent event) {
+        if (!isTouchLocked) gestureDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        enableAccelerometer();
-        enableTouchListener();
-    }
-
-    private void enableAccelerometer() {
-        if (!isAccelerometerEnabled) {
-            isAccelerometerEnabled = true;
-            orientationCacheData = new int[]{};
-            AccelerometerUtils.addAccelerometerListener(sensorListener, sensorManager);
+    private final OnGestureListener gestureListener = new OnGestureListener() {
+        @Override
+        public boolean onSwipe(OnGestureListener.Direction direction) {
+            onMovementDetected(direction);
+            return super.onSwipe(direction);
         }
-    }
 
-    private void disableAccelerometer() {
-        if (isAccelerometerEnabled) {
-            isAccelerometerEnabled = false;
-            orientationCacheData = new int[]{};
-            AccelerometerUtils.removeAccelerometerListener(sensorListener, sensorManager);
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            onDoubleTapped();
+            return super.onDoubleTap(e);
         }
-    }
-
-    private void enableTouchListener() {
-        if (!isTouchListenerEnabled) {
-            isTouchListenerEnabled = true;
-            rootView.setOnTouchListener(touchListener);
-        }
-    }
-
-    private void disableTouchListener() {
-        if (isTouchListenerEnabled) {
-            isTouchListenerEnabled = false;
-            rootView.setOnTouchListener(null);
-        }
-    }
+    };
 
     private void onDoubleTapped() {
         // hardcoded usage example
-        String message = "Unlocked";
-        if (isAccelerometerEnabled) {
-            disableAccelerometer();
-            message = "Locked";
-        } else {
-            enableAccelerometer();
-        }
-        DisplayUtils.showToast(this, message);
-
         calendarView.setDateSelected(CalendarDay.from(2021, 2, 25), true);
         calendarView.setDateSelected(CalendarDay.from(2021, 2, 11), true);
         calendarView.setDateSelected(CalendarDay.from(2021, 2, 13), true);
         calendarView.setDateSelected(CalendarDay.from(2021, 2, 16), true);
     }
 
-    private void onMovementDetected(int movement) {
-        switch (movement) {
-            case AccelerometerUtils.MOVEMENT_PITCH_TOP:
-                mBlockTop.setBackgroundColor(Color.BLACK);
-                mTextTop.setText(getString(R.string.changed));
+    private void onMovementDetected(OnGestureListener.Direction direction) {
+        isTouchLocked = true;
+        switch (direction) {
+            case UP:
+                AnimationUtils.animateScaleX(mBlockTop, BLOCK_ANIMATION_SCALE, BLOCK_ANIMATION_DURATION);
                 break;
-            case AccelerometerUtils.MOVEMENT_PITCH_BOTTOM:
-                mBlockBottom.setBackgroundColor(Color.BLACK);
-                mTextBottom.setText(getString(R.string.changed));
+            case RIGHT:
+                AnimationUtils.animateScaleY(mBlockRight, BLOCK_ANIMATION_SCALE, BLOCK_ANIMATION_DURATION);
                 break;
-            case AccelerometerUtils.MOVEMENT_ROLL_RIGHT:
-                mBlockRight.setBackgroundColor(Color.BLACK);
-                mTextRight.setText(getString(R.string.changed));
+            case DOWN:
+                AnimationUtils.animateScaleX(mBlockBottom, BLOCK_ANIMATION_SCALE, BLOCK_ANIMATION_DURATION);
                 break;
-            case AccelerometerUtils.MOVEMENT_ROLL_LEFT:
-                mBlockLeft.setBackgroundColor(Color.BLACK);
-                mTextLeft.setText(getString(R.string.changed));
+            case LEFT:
+                AnimationUtils.animateScaleY(mBlockLeft, BLOCK_ANIMATION_SCALE, BLOCK_ANIMATION_DURATION);
                 break;
         }
-    }
-
-    private void detectMovement(SensorEvent event) {
-        int[] orientationData = AccelerometerUtils.getOrientationData(event.values.clone()); // [pitch, roll, azimuth]
-        int movement = AccelerometerUtils.getMovement(orientationData, orientationCacheData, ROLL_DETECT_ANGLE);
-        orientationCacheData = orientationData;
-        onMovementDetected(movement);
-    }
-
-    private final SensorEventListener sensorListener = new SensorEventListener() {
-
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            detectMovement(event);
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-        }
-
-    };
-
-    private final View.OnTouchListener touchListener = new View.OnTouchListener() {
-
-        private final GestureDetector gestureDetector = new GestureDetector(activity, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onDoubleTap(MotionEvent e) {
-                onDoubleTapped();
-                return super.onDoubleTap(e);
+        animateTextUpdate(mTextTop, mTextRight, mTextBottom, mTextLeft);
+        new CountDownTimer(BLOCK_ANIMATION_DURATION * 2, 10000) {
+            public void onTick(long millisUntilFinished) {}
+            public void onFinish() {
+                isTouchLocked = false;
             }
-        });
+        }.start();
+    }
 
-        @SuppressLint("ClickableViewAccessibility")
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            gestureDetector.onTouchEvent(event);
-            return true;
+    private void animateTextUpdate(View... views) {
+        for (View v : views) {
+            AnimationUtils.animateFadeOutIn(v, TEXT_ANIMATION_DURATION, TEXT_ANIMATION_DELAY);
         }
-
-    };
+    }
 
     private void startAuthActivity() {
         Intent intent = new Intent(this, AuthActivity.class);
