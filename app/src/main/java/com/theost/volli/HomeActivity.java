@@ -1,7 +1,6 @@
 package com.theost.volli;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.GestureDetector;
@@ -11,10 +10,12 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.auth.FirebaseUser;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.theost.volli.utils.AnimationUtils;
-import com.theost.volli.utils.PrefUtils;
 import com.theost.volli.widgets.OnGestureListener;
 
 public class HomeActivity extends AppCompatActivity {
@@ -23,6 +24,8 @@ public class HomeActivity extends AppCompatActivity {
     private static final int TEXT_ANIMATION_DURATION = 300;
     private static final int TEXT_ANIMATION_DELAY = 800;
     private static final float BLOCK_ANIMATION_SCALE = 2f;
+
+    private FirebaseAuth firebaseAuth;
 
     private GestureDetector gestureDetector;
     private MaterialCalendarView calendarView;
@@ -39,15 +42,9 @@ public class HomeActivity extends AppCompatActivity {
 
     private boolean isTouchLocked;
 
-    private String userName;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        SharedPreferences preferences = PrefUtils.getSharedPreferences(this);
-        userName = preferences.getString(PrefUtils.PREFERENCES_KEY_USERNAME, "");
-        if (userName.equals("")) startAuthActivity();
 
         setTheme(R.style.Theme_Volli);
         setContentView(R.layout.activity_home);
@@ -63,6 +60,12 @@ public class HomeActivity extends AppCompatActivity {
         mTextLeft = findViewById(R.id.main_text_left);
 
         gestureDetector = new GestureDetector(this, gestureListener);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkAuth();
     }
 
     @Override
@@ -84,6 +87,28 @@ public class HomeActivity extends AppCompatActivity {
             return super.onDoubleTap(e);
         }
     };
+
+    private void checkAuth() {
+        if (firebaseAuth == null) firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        if (firebaseUser != null) {
+            String email = firebaseUser.getEmail();
+            if (email != null) {
+                firebaseAuth.signInWithEmailAndPassword(email, "null").addOnCompleteListener(this, task -> {
+                    try {
+                        Exception e = task.getException();
+                        if (e != null) throw e;
+                    } catch (FirebaseAuthInvalidUserException invalidEmail) {
+                        firebaseAuth.signOut();
+                        startAuthActivity();
+                    } catch (Exception ignored) {
+                    }
+                });
+            }
+        } else {
+            startAuthActivity();
+        }
+    }
 
     private void onDoubleTapped() {
         // hardcoded usage example
@@ -111,7 +136,9 @@ public class HomeActivity extends AppCompatActivity {
         }
         animateTextUpdate(mTextTop, mTextRight, mTextBottom, mTextLeft);
         new CountDownTimer(BLOCK_ANIMATION_DURATION * 2, 10000) {
-            public void onTick(long millisUntilFinished) {}
+            public void onTick(long millisUntilFinished) {
+            }
+
             public void onFinish() {
                 isTouchLocked = false;
             }

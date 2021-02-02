@@ -10,8 +10,8 @@
     <string name="text_control_tip">Проведите по экрану для\nвыбора действия</string>
 
     <string name="example_note_date">24.02.2020</string>
-    <string name="example_note_title">Домашнее задание</string>
-    <string name="example_note_text">Выполнить задание по литературе до завтрашнего дня.</string>
+    <string name="example_note_title">Напоминания</string>
+    <string name="example_note_text">На сегодня нет новых\nнапоминаний</string>
 
     <string name="welcome_app">Добро пожаловать в Volli!</string>
     <string name="welcome_blank_title">Заголовок</string>
@@ -24,11 +24,16 @@
     <string name="auth_name">Как вас зовут?</string>
     <string name="auth_sign_up">Зарегистрироваться</string>
     <string name="auth_forgot_password">Забыли пароль?</string>
+    <string name="auth_restore_password">Письмо для восстановления пароля отправлено на</string>
 
     <string name="feature_not_available">К сожалению, функция пока недоступна</string>
     <string name="network_not_available">Пожалуйста, проверьте подключение к сети!</string>
     <string name="password_is_too_short">Пароль должен содержать минимум 6 символов</string>
     <string name="wrong_email">Неверный адрес</string>
     <string name="wrong_name">Неверное имя</string>
+    <string name="wrong_password">Неверный пароль</string>
+    <string name="email_already_exist">Адрес уже зарегистрирован</string>
+    <string name="email_not_exist">Адрес не зарегистрирован</string>
+    <string name="unknown_error">Неизвестная ошибка</string>
 
 </resources>

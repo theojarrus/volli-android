@@ -11,7 +11,7 @@ android {
         applicationId "com.theost.volli"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 1
+        versionCode 100
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -40,6 +40,7 @@ dependencies {
 
     // Libraries
     implementation platform('com.google.firebase:firebase-bom:26.4.0')
+    implementation 'com.google.firebase:firebase-auth'
     implementation 'com.github.prolificinteractive:material-calendarview:2.0.0'
     implementation 'com.jakewharton.threetenabp:threetenabp:1.2.0'
     implementation 'com.stephentuso:welcome:1.4.1'

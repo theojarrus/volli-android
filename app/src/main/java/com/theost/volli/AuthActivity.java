@@ -1,6 +1,5 @@
 package com.theost.volli;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -9,13 +8,20 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.FirebaseNetworkException;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.stephentuso.welcome.WelcomeHelper;
 import com.theost.volli.utils.AuthUtils;
 import com.theost.volli.utils.DisplayUtils;
 import com.theost.volli.utils.NetworkUtils;
-import com.theost.volli.utils.PrefUtils;
 
 public class AuthActivity extends AppCompatActivity {
 
@@ -26,6 +32,8 @@ public class AuthActivity extends AppCompatActivity {
 
     private static final int PASSWORD_MIN_LENGTH = 6;
 
+    private FirebaseAuth firebaseAuth;
+
     private TextInputLayout emailLayout;
     private TextInputLayout passwordLayout;
     private TextInputLayout usernameLayout;
@@ -34,8 +42,8 @@ public class AuthActivity extends AppCompatActivity {
     private MaterialButton backButton;
     private TextView forgotPasswordButton;
 
-    private String authUsername;
     private String authEmail;
+    private String authPassword;
 
     private boolean isAuthorized;
 
@@ -44,6 +52,8 @@ public class AuthActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
         showWelcomeScreen();
+
+        firebaseAuth = FirebaseAuth.getInstance();
 
         emailLayout = findViewById(R.id.email_layout);
         passwordLayout = findViewById(R.id.password_layout);
@@ -66,6 +76,59 @@ public class AuthActivity extends AppCompatActivity {
         }
     }
 
+    private void authSignIn(String email, String password) {
+        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                authorizeUser();
+            } else {
+                displayAuthError(task);
+            }
+        });
+    }
+
+    private void authSignUp(String email, String password, String username) {
+        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
+                    user.updateProfile(profileUpdates);
+                    authorizeUser();
+                }
+            } else {
+                onBack();
+                displayAuthError(task);
+            }
+        });
+    }
+
+    private void resetPassword(String email) {
+        firebaseAuth.sendPasswordResetEmail(email).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DisplayUtils.showToast(this, getString(R.string.auth_restore_password) + email);
+            } else {
+                displayAuthError(task);
+            }
+        });
+    }
+
+    private void displayAuthError(Task task) {
+        try {
+            Exception e = task.getException();
+            if (e != null) throw e;
+        } catch (FirebaseAuthInvalidUserException e) {
+            emailLayout.setError(getString(R.string.email_not_exist));
+        } catch (FirebaseAuthInvalidCredentialsException e) {
+            passwordLayout.setError(getString(R.string.wrong_password));
+        } catch (FirebaseAuthUserCollisionException e) {
+            emailLayout.setError(getString(R.string.email_already_exist));
+        } catch (FirebaseNetworkException e) {
+            DisplayUtils.showToast(this, R.string.network_not_available);
+        } catch (Exception e) {
+            DisplayUtils.showToast(this, R.string.unknown_error);
+        }
+    }
+
     private void showWelcomeScreen() {
         WelcomeHelper welcomeScreen = new WelcomeHelper(this, WelcomeActivity.class);
         welcomeScreen.forceShow();
@@ -84,15 +147,12 @@ public class AuthActivity extends AppCompatActivity {
         DisplayUtils.hideKeyboard(this);
         if (NetworkUtils.isNetworkAvailable(this)) {
             if (requestCode == REQUEST_SIGN_UP || requestCode == REQUEST_SIGN_IN || requestCode == REQUEST_FORGOT_PASSWORD) {
-                String authPassword = getFieldText(passwordLayout);
                 authEmail = getFieldText(emailLayout);
+                authPassword = getFieldText(passwordLayout);
                 if (AuthUtils.isValidEmail(authEmail)) {
                     emailLayout.setError(null);
                     if (requestCode == REQUEST_FORGOT_PASSWORD || AuthUtils.isValidPassword(authPassword, PASSWORD_MIN_LENGTH)) {
                         passwordLayout.setError(null);
-                        if (requestCode == REQUEST_SIGN_IN) {
-                            return AuthUtils.requestAuth();
-                        }
                         return true;
                     } else {
                         passwordLayout.setError(getString(R.string.password_is_too_short));
@@ -133,10 +193,9 @@ public class AuthActivity extends AppCompatActivity {
                 updateNameField(true);
             }
         } else {
-            authUsername = getFieldText(usernameLayout).trim();
+            String authUsername = getFieldText(usernameLayout).trim();
             if (isAuthCorrect(REQUEST_SIGN_UP_NAME) && authUsername.length() > 0) {
-                // todo add account to database
-                authorizeUser();
+                authSignUp(authEmail, authPassword, authUsername);
             } else {
                 usernameLayout.setError(getString(R.string.wrong_name));
             }
@@ -145,32 +204,24 @@ public class AuthActivity extends AppCompatActivity {
 
     private void onSignIn() {
         if (isAuthCorrect(REQUEST_SIGN_IN)) {
-            authorizeUser();
+            authSignIn(authEmail, authPassword);
         }
     }
 
     private void onForgotPassword() {
         if (isAuthCorrect(REQUEST_FORGOT_PASSWORD)) {
-            DisplayUtils.showToast(this, R.string.feature_not_available);
+            resetPassword(authEmail);
         }
     }
 
     private void onBack() {
+        DisplayUtils.hideKeyboard(this);
         updateNameField(false);
     }
 
     private void authorizeUser() {
         isAuthorized = true;
-        updateSharedPreferences();
         onBackPressed();
-    }
-
-    private void updateSharedPreferences() {
-        SharedPreferences preferences = PrefUtils.getSharedPreferences(this);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(PrefUtils.PREFERENCES_KEY_USERNAME, authUsername);
-        editor.putString(PrefUtils.PREFERENCES_KEY_EMAIL, authEmail);
-        editor.apply();
     }
 
 }
