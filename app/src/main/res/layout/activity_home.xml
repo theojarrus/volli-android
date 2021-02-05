@@ -46,29 +46,33 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/note_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
                 android:paddingTop="@dimen/main_block_center_padding"
                 android:text="@string/example_note_date"
-                android:textSize="25sp"
+                android:textSize="@dimen/main_block_text_date"
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/note_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:paddingBottom="@dimen/main_block_center_padding"
+                android:paddingLeft="@dimen/main_block_info_padding"
+                android:paddingRight="@dimen/main_block_info_padding"
+                android:paddingBottom="@dimen/main_block_info_padding"
                 android:text="@string/example_note_title"
-                android:textSize="18sp" />
+                android:textSize="@dimen/main_block_text_title" />
 
             <TextView
+                android:id="@+id/note_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
+                android:paddingLeft="@dimen/main_block_info_padding"
+                android:paddingRight="@dimen/main_block_info_padding"
                 android:paddingBottom="@dimen/main_block_center_padding"
                 android:text="@string/example_note_text" />
 

@@ -75,10 +75,19 @@ public class OnGestureListener extends GestureDetector.SimpleOnGestureListener {
     }
 
     public enum Direction {
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT;
+        UP(0),
+        RIGHT(1),
+        DOWN(2),
+        LEFT(3);
+
+        int index;
+        Direction(int i) {
+            index = i;
+        }
+
+        public int getIndex() {
+            return index;
+        }
 
         /**
          * Returns a direction given an angle.

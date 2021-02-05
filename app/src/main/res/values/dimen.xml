@@ -4,8 +4,12 @@
     <dimen name="main_block_center_width">230dp</dimen>
     <dimen name="main_block_center_height">52dp</dimen>
     <dimen name="main_block_center_padding">20dp</dimen>
+    <dimen name="main_block_info_padding">12dp</dimen>
     <dimen name="main_block_top_bottom_height">72dp</dimen>
     <dimen name="main_block_left_right_height">460dp</dimen>
+
+    <dimen name="main_block_text_date">22sp</dimen>
+    <dimen name="main_block_text_title">18sp</dimen>
 
     <dimen name="icon_empty">108dp</dimen>
     <dimen name="auth_padding_in">20dp</dimen>

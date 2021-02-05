@@ -1,6 +1,7 @@
 package com.theost.volli.utils;
 
 import android.view.View;
+import android.widget.TextView;
 
 public class AnimationUtils {
 
@@ -12,8 +13,14 @@ public class AnimationUtils {
         view.animate().setDuration(duration).scaleY(scale).withEndAction(() -> view.animate().setDuration(duration).scaleY(1.0f));
     }
 
-    public static void animateFadeOutIn(View view, int duration, int delay) {
-        view.animate().setStartDelay(delay).setDuration(duration).alpha(0.0f).withEndAction(() -> view.animate().setDuration(duration).alpha(1.0f));
+    public static void animateFadeOutIn(TextView[] views, String[] textReplacements, int duration, int delay) {
+        for (int i = 0; i < views.length && i < textReplacements.length; i++) {
+            int j = i;
+            views[i].animate().setStartDelay(delay).setDuration(duration).alpha(0.0f).withEndAction(() -> {
+                views[j].setText(textReplacements[j]);
+                views[j].animate().setDuration(duration).alpha(1.0f);
+            });
+        }
     }
 
 }

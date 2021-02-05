@@ -5,13 +5,33 @@
     <string name="edit">Редактировать</string>
     <string name="create">Создать</string>
     <string name="settings">Настройки</string>
-    <string name="changed">Изменено</string>
+    <string name="previous">Предыдущий</string>
+    <string name="choose">Выбрать</string>
+    <string name="next">Следующий</string>
+    <string name="back">Назад</string>
+    <string name="reset">Сброс</string>
+    <string name="record">Запись</string>
+    <string name="stop">Остановить</string>
+    <string name="add">Добавить</string>
+    <string name="enable">Включить</string>
+    <string name="disable">Выключить</string>
+    <string name="delete">Удалить</string>
+
+    <string name="recording">Слушаем…</string>
+
+    <string name="edit_date">Изменить дату</string>
+    <string name="edit_text">Изменить текст</string>
+
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
 
     <string name="text_control_tip">Проведите по экрану для\nвыбора действия</string>
 
-    <string name="example_note_date">24.02.2020</string>
+    <string name="example_note_date">24.02.2020 – 23:00</string>
     <string name="example_note_title">Напоминания</string>
     <string name="example_note_text">На сегодня нет новых\nнапоминаний</string>
+    <string name="new_note_title">Без названия</string>
+    <string name="new_note_text">Без текста</string>
 
     <string name="welcome_app">Добро пожаловать в Volli!</string>
     <string name="welcome_blank_title">Заголовок</string>
@@ -35,5 +55,8 @@
     <string name="email_already_exist">Адрес уже зарегистрирован</string>
     <string name="email_not_exist">Адрес не зарегистрирован</string>
     <string name="unknown_error">Неизвестная ошибка</string>
+
+    <string name="voice_control_enabled">Голосове управление включено</string>
+    <string name="voice_control_disabled">Голосове управление выключено</string>
 
 </resources>

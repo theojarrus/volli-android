@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="actions_home">
+        <item>@string/read</item>
+        <item>@string/edit</item>
+        <item>@string/create</item>
+        <item>@string/settings</item>
+    </string-array>
+
+    <string-array name="actions_list">
+        <item>@string/previous</item>
+        <item>@string/choose</item>
+        <item>@string/next</item>
+        <item>@string/back</item>
+    </string-array>
+
+    <string-array name="actions_edit">
+        <item>@string/edit_date</item>
+        <item>@string/edit_text</item>
+        <item>@string/delete</item>
+        <item>@string/back</item>
+    </string-array>
+
+    <string-array name="actions_voice">
+        <item>@string/reset</item>
+        <item>@string/choose</item>
+        <item>@string/record</item>
+        <item>@string/back</item>
+    </string-array>
+
+    <string-array name="actions_settings">
+        <item>@string/previous</item>
+        <item>@string/disable</item>
+        <item>@string/next</item>
+        <item>@string/back</item>
+    </string-array>
+
+    <string-array name="actions_confirmation">
+        <item>@string/yes</item>
+        <item> </item>
+        <item>@string/no</item>
+        <item> </item>
+    </string-array>
+
+    <string-array name="weeks_russian">
+        <item>Пн</item>
+        <item>Вт</item>
+        <item>Ср</item>
+        <item>Чт</item>
+        <item>Пт</item>
+        <item>Сб</item>
+        <item>Вс</item>
+    </string-array>
+
+    <string-array name="weeks_english">
+        <item>M</item>
+        <item>T</item>
+        <item>W</item>
+        <item>T</item>
+        <item>F</item>
+        <item>S</item>
+        <item>S</item>
+    </string-array>
+
+    <string-array name="months_russian">
+        <item>Январь</item>
+        <item>Февраль</item>
+        <item>Март</item>
+        <item>Апрель</item>
+        <item>Май</item>
+        <item>Июнь</item>
+        <item>Июль</item>
+        <item>Август</item>
+        <item>Сентябрь</item>
+        <item>Октябрь</item>
+        <item>Ноябрь</item>
+        <item>Декабрь</item>
+    </string-array>
+
+</resources>
