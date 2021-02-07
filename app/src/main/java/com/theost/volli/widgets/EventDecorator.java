@@ -18,6 +18,11 @@ public class EventDecorator implements DayViewDecorator {
         this.color = color;
     }
 
+    public EventDecorator(int color) {
+        this.dates = new HashSet<>();
+        this.color = color;
+    }
+
     public boolean addDay(CalendarDay day) {
         return dates.add(day);
     }

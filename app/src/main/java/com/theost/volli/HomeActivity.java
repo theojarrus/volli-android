@@ -18,17 +18,22 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.format.ArrayWeekDayFormatter;
+import com.theost.volli.models.Event;
 import com.theost.volli.utils.AnimationUtils;
 import com.theost.volli.utils.DisplayUtils;
 import com.theost.volli.utils.PermissionUtils;
@@ -41,6 +46,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -48,9 +54,13 @@ public class HomeActivity extends AppCompatActivity {
 
     private static final String DATABASE_USER = "user-";
     private static final String DATABASE_NOTE = "note-";
-    private static final String DATABASE_DATE = "date";
     private static final String DATABASE_TITLE = "title";
     private static final String DATABASE_TEXT = "text";
+    private static final String DATABASE_DAY = "day";
+    private static final String DATABASE_MONTH = "month";
+    private static final String DATABASE_YEAR = "year";
+    private static final String DATABASE_HOURS = "hours";
+    private static final String DATABASE_MINUTES = "minutes";
 
     private static final String DATE_PATTERN = "dd.MM.yyyy - HH:mm";
     private static final String DATE_PATTERN_DAY = "dd";
@@ -95,6 +105,8 @@ public class HomeActivity extends AppCompatActivity {
     private SpeechRecognizer speechRecognizer;
     private Intent speechRecognizerIntent;
 
+    private List<Event> eventsList;
+
     private View mBlockTop;
     private View mBlockRight;
     private View mBlockBottom;
@@ -113,6 +125,7 @@ public class HomeActivity extends AppCompatActivity {
     private boolean isVoiceEnabled;
     private boolean isEditing;
     private boolean isTodaySelected;
+    private boolean isLoaded;
 
     private String[] currentActions;
 
@@ -162,6 +175,7 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         themeColor = ContextCompat.getColor(this, R.color.blue);
+        eventDecorator = new EventDecorator(themeColor);
 
         currentActions = getResources().getStringArray(R.array.actions_home);
         gestureDetector = new GestureDetector(this, gestureListener);
@@ -181,7 +195,6 @@ public class HomeActivity extends AppCompatActivity {
         super.onResume();
         checkAuth();
         registerReceiver();
-        updateCalendarDates();
         updateTodayDate();
     }
 
@@ -328,14 +341,50 @@ public class HomeActivity extends AppCompatActivity {
 
     private void loadDatabase() {
         firebaseDatabase = FirebaseDatabase.getInstance();
+        firebaseDatabase.setPersistenceEnabled(true);
         firebaseUserReference = firebaseDatabase.getReference().child(DATABASE_USER + firebaseUser.getUid());
+        firebaseUserReference.addValueEventListener(databaseListener);
     }
 
     private void databaseCreateNote(String title, String text) {
         DatabaseReference noteReference = firebaseUserReference.child(DATABASE_NOTE + UUID.randomUUID().toString());
-        noteReference.child(DATABASE_DATE).setValue(calendar.getTime());
+        noteReference.child(DATABASE_DAY).setValue(calendar.get(Calendar.DAY_OF_MONTH));
+        noteReference.child(DATABASE_MONTH).setValue(calendar.get(Calendar.MONTH) + 1);
+        noteReference.child(DATABASE_YEAR).setValue(calendar.get(Calendar.YEAR));
+        noteReference.child(DATABASE_HOURS).setValue(calendar.get(Calendar.HOUR_OF_DAY));
+        noteReference.child(DATABASE_MINUTES).setValue(calendar.get(Calendar.MINUTE));
         noteReference.child(DATABASE_TITLE).setValue(title);
         noteReference.child(DATABASE_TEXT).setValue(text);
+    }
+
+    private final ValueEventListener databaseListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            if (!isLoaded) {
+                eventsList = new ArrayList<>();
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    Event event = ds.getValue(Event.class);
+                    eventsList.add(event);
+                }
+                loadCalendarDates();
+            }
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            showDatabaseError();
+        }
+    };
+
+    private void loadCalendarDates() {
+        for (Event event : eventsList) {
+            changeDayEvent(CalendarDay.from(event.getYear(), event.getMonth(),  event.getDay()), true);
+        }
+        isLoaded = true;
+    }
+
+    private void showDatabaseError() {
+        DisplayUtils.showToast(this, R.string.network_not_available);
     }
 
     private void checkAuth() {
@@ -477,12 +526,6 @@ public class HomeActivity extends AppCompatActivity {
             resetNoteTitle();
             resetNoteText();
         }
-    }
-
-    private void updateCalendarDates() {
-        ArrayList<CalendarDay> selectedDays = new ArrayList<>(); // do get from database
-        eventDecorator = new EventDecorator(selectedDays, themeColor);
-        calendarView.addDecorator(eventDecorator);
     }
 
     private void updateDate() {
@@ -747,17 +790,21 @@ public class HomeActivity extends AppCompatActivity {
         } else {
             stopSpeechRecognizer();
             replaceCurrentData(R.string.read, R.string.record);
-            if (currentVoiceMode == MODE_VOICE_TITLE) {
-                if (mNoteTitleView.getText().toString().equals(getString(R.string.recording))) {
-                    mNoteTitleView.setText(getString(R.string.new_note_title));
-                }
-            } else if (currentVoiceMode == MODE_VOICE_TEXT) {
-                if (mNoteTextView.getText().toString().equals(getString(R.string.recording))) {
-                    mNoteTextView.setText(getString(R.string.new_note_text));
-                }
-            }
+            updateNoteVoice();
         }
         updateNoteSpan();
+    }
+
+    private void updateNoteVoice() {
+        if (currentVoiceMode == MODE_VOICE_TITLE) {
+            if (mNoteTitleView.getText().toString().equals(getString(R.string.recording))) {
+                mNoteTitleView.setText(getString(R.string.new_note_title));
+            }
+        } else if (currentVoiceMode == MODE_VOICE_TEXT) {
+            if (mNoteTextView.getText().toString().equals(getString(R.string.recording))) {
+                mNoteTextView.setText(getString(R.string.new_note_text));
+            }
+        }
     }
 
     private boolean resetVoice() {
@@ -771,11 +818,12 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private boolean changeVoiceMode(boolean isNext) {
+        updateNoteVoice();
         if (isNext) {
             if (currentVoiceMode == MODE_VOICE_TITLE) {
                 currentVoiceMode = MODE_VOICE_TEXT;
                 updateNoteSpan();
-                return false;
+                return replaceCurrentData(R.string.read, R.string.record);
             } else {
                 isEditing = false;
                 currentVoiceMode = MODE_VOICE_TITLE;
@@ -795,10 +843,9 @@ public class HomeActivity extends AppCompatActivity {
                 updateNoteSpan();
                 return true;
             } else {
-                resetVoice();
                 currentVoiceMode = MODE_VOICE_TITLE;
                 updateNoteSpan();
-                return false;
+                return replaceCurrentData(R.string.read, R.string.record);
             }
         }
     }
