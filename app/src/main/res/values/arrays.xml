@@ -3,7 +3,7 @@
 
     <string-array name="actions_home">
         <item>@string/read</item>
-        <item>@string/edit</item>
+        <item>@string/instructions</item>
         <item>@string/create</item>
         <item>@string/settings</item>
     </string-array>
@@ -15,10 +15,10 @@
         <item>@string/back</item>
     </string-array>
 
-    <string-array name="actions_edit">
-        <item>@string/edit_date</item>
-        <item>@string/edit_text</item>
-        <item>@string/delete</item>
+    <string-array name="actions_read">
+        <item>@string/previous</item>
+        <item>@string/clear</item>
+        <item>@string/next</item>
         <item>@string/back</item>
     </string-array>
 

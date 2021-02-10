@@ -9,8 +9,6 @@ public class ResUtils {
     public static int getStringId(Context context, String string) {
         if (string.equals(context.getString(R.string.read))) {
             return R.string.read;
-        } else if (string.equals(context.getString(R.string.edit))) {
-            return R.string.edit;
         } else if (string.equals(context.getString(R.string.create))) {
             return R.string.create;
         } else if (string.equals(context.getString(R.string.settings))) {
@@ -27,8 +25,12 @@ public class ResUtils {
             return R.string.reset;
         } else if (string.equals(context.getString(R.string.record))) {
             return R.string.record;
-        } else if (string.equals(context.getString(R.string.stop))) {
-            return R.string.stop;
+        } else if (string.equals(context.getString(R.string.clear))) {
+            return R.string.clear;
+        } else if (string.equals(context.getString(R.string.yes))) {
+            return R.string.yes;
+        } else if (string.equals(context.getString(R.string.no))) {
+            return R.string.no;
         } else {
             return -1;
         }

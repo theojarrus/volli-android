@@ -45,6 +45,7 @@ import com.theost.volli.widgets.TodayDecorator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -54,6 +55,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private static final String DATABASE_USER = "user-";
     private static final String DATABASE_NOTE = "note-";
+    private static final String DATABASE_NOTE_ID = "id";
     private static final String DATABASE_TITLE = "title";
     private static final String DATABASE_TEXT = "text";
     private static final String DATABASE_DAY = "day";
@@ -74,6 +76,7 @@ public class HomeActivity extends AppCompatActivity {
     private static final int MODE_HOME = 0;
     private static final int MODE_CREATION = 1;
     private static final int MODE_CREATION_CONTENT = 2;
+    private static final int MODE_READING = 3;
 
     private static final int MODE_DATE_YEAR = 0;
     private static final int MODE_DATE_MONTH = 1;
@@ -134,12 +137,13 @@ public class HomeActivity extends AppCompatActivity {
     private int currentVoiceMode = MODE_VOICE_TITLE;
 
     private Calendar calendar;
-    private CalendarDay prevCalendarDay;
     private SimpleDateFormat dateFormat;
 
     private Date todayDate;
     private CalendarDay todayDay;
+    private Event todayEvent;
 
+    private int currentReadIndex;
     private int currentVoiceRequest;
     private int themeColor;
 
@@ -174,15 +178,18 @@ public class HomeActivity extends AppCompatActivity {
             calendarView.setWeekDayFormatter(new ArrayWeekDayFormatter(getResources().getStringArray(R.array.weeks_english)));
         }
 
+        eventsList = new ArrayList<>();
+
         themeColor = ContextCompat.getColor(this, R.color.blue);
         eventDecorator = new EventDecorator(themeColor);
 
-        currentActions = getResources().getStringArray(R.array.actions_home);
+        updateCurrentData(MODE_HOME, R.array.actions_home);
+
         gestureDetector = new GestureDetector(this, gestureListener);
 
         createSpeechRecognizer();
 
-        updateNoteInfo(true);
+        updateTodayInfo(true);
     }
 
     private void startAuthActivity() {
@@ -286,7 +293,7 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().compareTo(Intent.ACTION_TIME_TICK) == 0) {
-                if (!isEditing) updateNoteInfo(true);
+                if (!isEditing) updateTodayInfo(true);
                 updateTodayDate();
             }
         }
@@ -346,27 +353,45 @@ public class HomeActivity extends AppCompatActivity {
         firebaseUserReference.addValueEventListener(databaseListener);
     }
 
-    private void databaseCreateNote(String title, String text) {
-        DatabaseReference noteReference = firebaseUserReference.child(DATABASE_NOTE + UUID.randomUUID().toString());
-        noteReference.child(DATABASE_DAY).setValue(calendar.get(Calendar.DAY_OF_MONTH));
-        noteReference.child(DATABASE_MONTH).setValue(calendar.get(Calendar.MONTH) + 1);
-        noteReference.child(DATABASE_YEAR).setValue(calendar.get(Calendar.YEAR));
-        noteReference.child(DATABASE_HOURS).setValue(calendar.get(Calendar.HOUR_OF_DAY));
-        noteReference.child(DATABASE_MINUTES).setValue(calendar.get(Calendar.MINUTE));
-        noteReference.child(DATABASE_TITLE).setValue(title);
-        noteReference.child(DATABASE_TEXT).setValue(text);
+    private void createNewEvent(String title, String text) {
+        Event event = new Event();
+        event.setDay(calendar.get(Calendar.DAY_OF_MONTH));
+        event.setMonth(calendar.get(Calendar.MONTH) + 1);
+        event.setYear(calendar.get(Calendar.YEAR));
+        event.setHours(calendar.get(Calendar.HOUR_OF_DAY));
+        event.setMinutes(calendar.get(Calendar.MINUTE));
+        String noteId = UUID.randomUUID().toString();
+        event.setId(noteId);
+        event.setTitle(title);
+        event.setText(text);
+        eventsList.add(event);
+        syncEventDatabase(event);
+        sortEvents();
+    }
+
+    private void syncEventDatabase(Event event) {
+        DatabaseReference noteReference = firebaseUserReference.child(DATABASE_NOTE + event.getId());
+        noteReference.child(DATABASE_DAY).setValue(event.getDay());
+        noteReference.child(DATABASE_MONTH).setValue(event.getMonth());
+        noteReference.child(DATABASE_YEAR).setValue(event.getYear());
+        noteReference.child(DATABASE_HOURS).setValue(event.getHours());
+        noteReference.child(DATABASE_MINUTES).setValue(event.getMinutes());
+        noteReference.child(DATABASE_NOTE_ID).setValue(event.getId());
+        noteReference.child(DATABASE_TITLE).setValue(event.getTitle());
+        noteReference.child(DATABASE_TEXT).setValue(event.getText());
     }
 
     private final ValueEventListener databaseListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             if (!isLoaded) {
-                eventsList = new ArrayList<>();
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     Event event = ds.getValue(Event.class);
                     eventsList.add(event);
                 }
+                sortEvents();
                 loadCalendarDates();
+                updateTodayInfo(true);
             }
         }
 
@@ -378,7 +403,8 @@ public class HomeActivity extends AppCompatActivity {
 
     private void loadCalendarDates() {
         for (Event event : eventsList) {
-            changeDayEvent(CalendarDay.from(event.getYear(), event.getMonth(),  event.getDay()), true);
+            CalendarDay day = CalendarDay.from(event.getYear(), event.getMonth(), event.getDay());
+            changeDayEvent(day, true);
         }
         isLoaded = true;
     }
@@ -416,24 +442,18 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void onLongTapped() {
-        // hardcoded usage example
-        changeDayEvent(CalendarDay.from(2021, 2, 25), false);
-        changeDayEvent(CalendarDay.from(2021, 2, 25), true);
-        changeDayEvent(CalendarDay.from(2021, 2, 11), true);
-        changeDayEvent(CalendarDay.from(2021, 2, 13), true);
-        changeDayEvent(CalendarDay.from(2021, 2, 16), true);
-        // play instructions
+        // do something you want
     }
 
     private void onDoubleTapped() {
         if (!isVoiceEnabled) {
             isVoiceEnabled = true;
             DisplayUtils.showToast(this, R.string.voice_control_enabled);
-            // enable voice recognize
+            // enable voice recognition
         } else {
             isVoiceEnabled = false;
             DisplayUtils.showToast(this, R.string.voice_control_disabled);
-            // disable voice recognize
+            // disable voice recognition
         }
     }
 
@@ -446,7 +466,6 @@ public class HomeActivity extends AppCompatActivity {
             updateNoteSpan();
         }
         // } else { do commands }
-        currentVoiceRequest = -1;
     }
 
     private void onMovementDetected(OnGestureListener.Direction direction) {
@@ -496,7 +515,7 @@ public class HomeActivity extends AppCompatActivity {
         currentActions = getResources().getStringArray(arrayId);
         currentMode = mode;
         if (currentMode == MODE_HOME) {
-            updateNoteInfo(true);
+            updateTodayInfo(true);
         }
     }
 
@@ -514,26 +533,67 @@ public class HomeActivity extends AppCompatActivity {
         return isFound;
     }
 
-    private void updateNoteInfo(boolean isHome) {
+    private void updateTodayInfo(boolean isHome) {
         calendar = Calendar.getInstance();
-        calendarView.setCurrentDate(CalendarDay.from(calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH)));
-        mNoteDateView.setText(dateFormat.format(calendar.getTime()));
+        calendarView.setCurrentDate(CalendarDay.from(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH)));
         if (isHome) {
-            mNoteTitleView.setText(R.string.example_note_title);
-            mNoteTextView.setText(R.string.example_note_text);
+            todayEvent = getTodayEvent(calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.YEAR), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
+            if (todayEvent != null) {
+                updateNoteInfo(todayEvent);
+            } else {
+                mNoteTitleView.setText(R.string.example_note_title);
+                mNoteTextView.setText(R.string.example_note_text);
+                mNoteDateView.setText(dateFormat.format(calendar.getTime()));
+            }
         } else {
             resetNoteTitle();
             resetNoteText();
         }
     }
 
+    private void updateNoteInfo(Event event) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, event.getYear());
+        calendar.set(Calendar.MONTH, event.getMonth());
+        calendar.set(Calendar.DAY_OF_MONTH, event.getDay());
+        calendar.set(Calendar.HOUR_OF_DAY, event.getHours());
+        calendar.set(Calendar.MINUTE, event.getMinutes());
+        mNoteTitleView.setText(event.getTitle());
+        mNoteTextView.setText(event.getText());
+        mNoteDateView.setText(dateFormat.format(calendar.getTime()));
+    }
+
+    private Event getTodayEvent(int day, int month, int year, int hours, int minutes) {
+        for (Event event : eventsList) {
+            if (event.getDay() == day && event.getMonth() == month && event.getYear() == year && (event.getHours() > hours || (event.getHours() == hours && event.getMinutes() >= minutes))) {
+                return event;
+            } else if (event.getYear() > todayDay.getYear() || event.getMonth() > todayDay.getMonth() || event.getDay() > todayDay.getDay()) {
+                break;
+            }
+        }
+        return null;
+    }
+
+    private int getFirstEventIndex() {
+        int nextIndex = eventsList.indexOf(todayEvent);
+        if (todayEvent == null || nextIndex == -1) {
+            nextIndex = -1;
+            if (eventsList != null && eventsList.size() > 0) {
+                for (Event event : eventsList) {
+                    nextIndex += 1;
+                    if (event.getYear() > todayDay.getYear() || event.getMonth() > todayDay.getMonth() || event.getDay() > todayDay.getDay()) {
+                        return nextIndex;
+                    }
+                }
+            }
+        }
+        return nextIndex;
+    }
+
     private void updateDate() {
         if (currentDateMode != MODE_DATE_HOUR && currentDateMode != MODE_DATE_MINUTE) {
             CalendarDay selectedDay = CalendarDay.from(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
-            selectDay(selectedDay);
-            resetPrevSelectedDay(selectedDay);
-            prevCalendarDay = selectedDay;
+            updateSelectedDay(selectedDay);
         }
         mNoteDateView.setText(dateFormat.format(calendar.getTime()));
         updateDateSpan(false);
@@ -562,6 +622,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void restoreTodayDate() {
         if (isTodaySelected) {
+            isTodaySelected = false;
             calendarView.addDecorator(todayDecorator);
         }
     }
@@ -634,6 +695,8 @@ public class HomeActivity extends AppCompatActivity {
             return performAddScreenAction(actionId);
         } else if (currentMode == MODE_CREATION_CONTENT) {
             return preformAddRecordScreenAction(actionId);
+        } else if (currentMode == MODE_READING) {
+            return preformReadScreenAction(actionId);
         }
         return true;
     }
@@ -642,10 +705,7 @@ public class HomeActivity extends AppCompatActivity {
     private boolean performHomeScreenAction(int actionId) {
         switch (actionId) {
             case R.string.read:
-                // do
-                return true;
-            case R.string.edit:
-                // do
+                readEvent();
                 return true;
             case R.string.create:
                 addEvent();
@@ -654,14 +714,14 @@ public class HomeActivity extends AppCompatActivity {
                 // do
                 return true;
         }
-        return true;
+        return false;
     }
 
     private void addEvent() {
         isEditing = true;
         updateCurrentData(MODE_CREATION, R.array.actions_list);
         currentDateMode = MODE_DATE_YEAR;
-        updateNoteInfo(false);
+        updateTodayInfo(false);
         calendar.add(Calendar.DAY_OF_YEAR, 1);
         calendar.set(Calendar.HOUR_OF_DAY, DEFAULT_NOTE_TIME);
         calendar.set(Calendar.MINUTE, 0);
@@ -705,28 +765,34 @@ public class HomeActivity extends AppCompatActivity {
         } else if (currentDateMode == MODE_DATE_DAY) {
             calendar.add(Calendar.DAY_OF_MONTH, direction);
         } else if (currentDateMode == MODE_DATE_HOUR) {
-            calendar.add(Calendar.HOUR_OF_DAY, direction);
+            int hour = calendar.get(Calendar.HOUR_OF_DAY) + direction;
+            if (hour >= 24) {
+                hour -= 24;
+            } else if (hour < 0) {
+                hour += 24;
+            }
+            calendar.set(Calendar.HOUR_OF_DAY, hour);
         } else if (currentDateMode == MODE_DATE_MINUTE) {
-            calendar.add(Calendar.MINUTE, 5 * direction);
+            int minute = calendar.get(Calendar.MINUTE) + 5 * direction;
+            if (minute >= 60) {
+                minute -= 60;
+            } else if (minute < 0) {
+                minute += 60;
+            }
+            calendar.set(Calendar.MINUTE, minute);
         }
         updateDate();
     }
 
-    private void selectDay(CalendarDay selectedDay) {
+    private void updateSelectedDay(CalendarDay selectedDay) {
         if (selectedDay.equals(todayDay)) {
             isTodaySelected = true;
             calendarView.removeDecorator(todayDecorator);
         } else {
             restoreTodayDate();
         }
-        calendarView.setDateSelected(selectedDay, true);
+        calendarView.setSelectedDate(selectedDay);
         calendarView.setCurrentDate(selectedDay);
-    }
-
-    private void resetPrevSelectedDay(CalendarDay selectedDay) {
-        if (prevCalendarDay != null && !prevCalendarDay.equals(selectedDay)) {
-            calendarView.setDateSelected(prevCalendarDay, false);
-        }
     }
 
     private boolean changeDateMode(boolean isNext) {
@@ -745,7 +811,7 @@ public class HomeActivity extends AppCompatActivity {
             if (currentDateMode == MODE_DATE_YEAR) {
                 updateCurrentData(MODE_HOME, R.array.actions_home);
                 updateDateSpan(true);
-                resetPrevSelectedDay(null);
+                calendarView.clearSelection();
                 restoreTodayDate();
                 return true;
             } else {
@@ -827,11 +893,11 @@ public class HomeActivity extends AppCompatActivity {
             } else {
                 isEditing = false;
                 currentVoiceMode = MODE_VOICE_TITLE;
-                databaseCreateNote(mNoteTitleView.getText().toString(), mNoteTextView.getText().toString());
-                changeDayEvent(prevCalendarDay, true);
+                createNewEvent(mNoteTitleView.getText().toString(), mNoteTextView.getText().toString());
+                changeDayEvent(calendarView.getSelectedDate(), true);
+                calendarView.clearSelection();
                 updateCurrentData(MODE_HOME, R.array.actions_home);
                 updateNoteSpan();
-                resetPrevSelectedDay(null);
                 restoreTodayDate();
                 moveToday();
                 return true;
@@ -848,6 +914,114 @@ public class HomeActivity extends AppCompatActivity {
                 return replaceCurrentData(R.string.read, R.string.record);
             }
         }
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    private boolean preformReadScreenAction(int actionId) {
+        switch (actionId) {
+            case R.string.previous:
+                changeReadEvent(-1);
+                return false;
+            case R.string.clear:
+                confirmDeletion();
+                return true;
+            case R.string.yes:
+                cancelDeletion();
+                deleteEvent();
+                return true;
+            case R.string.no:
+                cancelDeletion();
+                return true;
+            case R.string.next:
+                changeReadEvent(1);
+                return false;
+            case R.string.back:
+                readEventBack();
+                return true;
+        }
+        return true;
+    }
+
+    private void readEvent() {
+        currentReadIndex = getFirstEventIndex();
+        if (eventsList.size() > 0 && currentReadIndex != -1) {
+            updateCurrentData(MODE_READING, R.array.actions_read);
+            updateEventInfo();
+        } else {
+            DisplayUtils.showToast(this, R.string.no_events_found);
+        }
+    }
+
+    private void sortEvents() {
+        Collections.sort(eventsList, (o1, o2) -> {
+            int years = o1.getYear() - o2.getYear();
+            if (years == 0) {
+                int months = o1.getMonth() - o2.getMonth();
+                if (months == 0) {
+                    int days = o1.getDay() - o2.getDay();
+                    if (days == 0) {
+                        int hours = o1.getHours() - o2.getHours();
+                        if (hours == 0) {
+                            return o1.getMinutes() - o2.getMinutes();
+                        } else {
+                            return hours;
+                        }
+                    } else {
+                        return days;
+                    }
+                } else {
+                    return months;
+                }
+            } else {
+                return years;
+            }
+        });
+    }
+
+    private void updateEventInfo() {
+        Event currentEvent = eventsList.get(currentReadIndex);
+        CalendarDay selectedDay = CalendarDay.from(currentEvent.getYear(), currentEvent.getMonth(), currentEvent.getDay());
+        updateSelectedDay(selectedDay);
+        updateNoteInfo(currentEvent);
+    }
+
+    private void changeReadEvent(int direction) {
+        currentReadIndex += direction;
+        if (currentReadIndex < 0) {
+            currentReadIndex += eventsList.size();
+        } else if (currentReadIndex > eventsList.size() - 1) {
+            currentReadIndex -= eventsList.size();
+        }
+        updateEventInfo();
+    }
+
+    private void confirmDeletion() {
+        updateCurrentData(MODE_READING, R.array.actions_confirmation);
+    }
+
+    private void cancelDeletion() {
+        updateCurrentData(MODE_READING, R.array.actions_read);
+    }
+
+    private void deleteEvent() {
+        Event event = eventsList.get(currentReadIndex);
+        firebaseUserReference.child(DATABASE_NOTE + event.getId()).removeValue();
+        changeDayEvent(CalendarDay.from(event.getYear(), event.getMonth(), event.getDay()), false);
+        eventsList.remove(currentReadIndex);
+        if (eventsList.size() > 0) {
+            changeReadEvent(0);
+        } else {
+            DisplayUtils.showToast(this, R.string.no_events_found);
+            readEventBack();
+        }
+    }
+
+    private void readEventBack() {
+        updateCurrentData(MODE_HOME, R.array.actions_home);
+        updateNoteSpan();
+        calendarView.clearSelection();
+        restoreTodayDate();
+        moveToday();
     }
 
 }

@@ -137,7 +137,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:rotation="-90"
-        android:text="@string/edit"
+        android:text="@string/instructions"
         android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="@id/main_block_right"

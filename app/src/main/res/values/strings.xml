@@ -2,7 +2,6 @@
     <string name="app_name">Volli</string>
     
     <string name="read">Прочитать</string>
-    <string name="edit">Редактировать</string>
     <string name="create">Создать</string>
     <string name="settings">Настройки</string>
     <string name="previous">Предыдущий</string>
@@ -11,19 +10,19 @@
     <string name="back">Назад</string>
     <string name="reset">Сброс</string>
     <string name="record">Запись</string>
-    <string name="stop">Остановить</string>
-    <string name="add">Добавить</string>
     <string name="enable">Включить</string>
     <string name="disable">Выключить</string>
     <string name="delete">Удалить</string>
+    <string name="clear">Очистить</string>
+    <string name="instructions">Инструкции</string>
 
-    <string name="recording">Слушаем…</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
 
     <string name="edit_date">Изменить дату</string>
     <string name="edit_text">Изменить текст</string>
 
-    <string name="yes">Да</string>
-    <string name="no">Нет</string>
+    <string name="recording">Слушаем…</string>
 
     <string name="text_control_tip">Проведите по экрану для\nвыбора действия</string>
 
@@ -55,6 +54,8 @@
     <string name="email_already_exist">Адрес уже зарегистрирован</string>
     <string name="email_not_exist">Адрес не зарегистрирован</string>
     <string name="unknown_error">Неизвестная ошибка</string>
+
+    <string name="no_events_found">Нет запланированных событий</string>
 
     <string name="voice_control_enabled">Голосове управление включено</string>
     <string name="voice_control_disabled">Голосове управление выключено</string>

@@ -28,7 +28,7 @@ public class EventDecorator implements DayViewDecorator {
     }
 
     public boolean removeDay(CalendarDay day) {
-        return dates.add(day);
+        return dates.remove(day);
     }
 
     @Override
