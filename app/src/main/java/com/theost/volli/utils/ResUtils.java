@@ -27,6 +27,8 @@ public class ResUtils {
             return R.string.record;
         } else if (string.equals(context.getString(R.string.clear))) {
             return R.string.clear;
+        } else if (string.equals(context.getString(R.string.instructions))) {
+            return R.string.instructions;
         } else if (string.equals(context.getString(R.string.yes))) {
             return R.string.yes;
         } else if (string.equals(context.getString(R.string.no))) {

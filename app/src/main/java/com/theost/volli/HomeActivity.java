@@ -126,7 +126,6 @@ public class HomeActivity extends AppCompatActivity {
 
     private boolean isTouchLocked;
     private boolean isVoiceEnabled;
-    private boolean isEditing;
     private boolean isTodaySelected;
     private boolean isLoaded;
 
@@ -293,7 +292,9 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().compareTo(Intent.ACTION_TIME_TICK) == 0) {
-                if (!isEditing) updateTodayInfo(true);
+                if (currentMode == MODE_HOME && todayEvent == null) {
+                    updateTodayInfo(true);
+                }
                 updateTodayDate();
             }
         }
@@ -416,7 +417,6 @@ public class HomeActivity extends AppCompatActivity {
     private void checkAuth() {
         if (firebaseAuth == null) firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
-        ArrayList<Boolean> isAuthorized = new ArrayList<>();
         if (firebaseUser != null) {
             String email = firebaseUser.getEmail();
             if (email != null) {
@@ -425,19 +425,18 @@ public class HomeActivity extends AppCompatActivity {
                         Exception e = task.getException();
                         if (e != null) throw e;
                     } catch (FirebaseAuthInvalidUserException invalidEmail) {
-                        isAuthorized.add(false);
+                        firebaseAuth.signOut();
+                        startAuthActivity();
                     } catch (Exception ignored) {
+                        if (firebaseDatabase == null) {
+                            loadDatabase();
+                        }
                     }
                 });
             }
         } else {
-            isAuthorized.add(false);
-        }
-        if (isAuthorized.contains(false)) {
             firebaseAuth.signOut();
             startAuthActivity();
-        } else if (firebaseDatabase == null) {
-            loadDatabase();
         }
     }
 
@@ -707,6 +706,9 @@ public class HomeActivity extends AppCompatActivity {
             case R.string.read:
                 readEvent();
                 return true;
+            case R.string.instructions:
+                // play instructions
+                return false;
             case R.string.create:
                 addEvent();
                 return true;
@@ -718,7 +720,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void addEvent() {
-        isEditing = true;
         updateCurrentData(MODE_CREATION, R.array.actions_list);
         currentDateMode = MODE_DATE_YEAR;
         updateTodayInfo(false);
@@ -891,7 +892,6 @@ public class HomeActivity extends AppCompatActivity {
                 updateNoteSpan();
                 return replaceCurrentData(R.string.read, R.string.record);
             } else {
-                isEditing = false;
                 currentVoiceMode = MODE_VOICE_TITLE;
                 createNewEvent(mNoteTitleView.getText().toString(), mNoteTextView.getText().toString());
                 changeDayEvent(calendarView.getSelectedDate(), true);

@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
@@ -122,10 +121,8 @@ public class AuthActivity extends AppCompatActivity {
             passwordLayout.setError(getString(R.string.wrong_password));
         } catch (FirebaseAuthUserCollisionException e) {
             emailLayout.setError(getString(R.string.email_already_exist));
-        } catch (FirebaseNetworkException e) {
-            DisplayUtils.showToast(this, R.string.network_not_available);
         } catch (Exception e) {
-            DisplayUtils.showToast(this, R.string.unknown_error);
+            DisplayUtils.showToast(this, R.string.network_not_available);
         }
     }
 
