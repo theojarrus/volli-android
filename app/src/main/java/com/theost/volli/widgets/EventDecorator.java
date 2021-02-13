@@ -31,6 +31,12 @@ public class EventDecorator implements DayViewDecorator {
         return dates.remove(day);
     }
 
+    public boolean clear() {
+        int size = dates.size();
+        dates.clear();
+        return size > 0;
+    }
+
     @Override
     public boolean shouldDecorate(CalendarDay day) {
         return dates.contains(day);

@@ -64,7 +64,8 @@
                 android:paddingRight="@dimen/main_block_info_padding"
                 android:paddingBottom="@dimen/main_block_info_padding"
                 android:text="@string/example_note_title"
-                android:textSize="@dimen/main_block_text_title" />
+                android:textSize="@dimen/main_block_text_title"
+                tools:ignore="TextViewEdits" />
 
             <TextView
                 android:id="@+id/note_text"
@@ -74,7 +75,8 @@
                 android:paddingLeft="@dimen/main_block_info_padding"
                 android:paddingRight="@dimen/main_block_info_padding"
                 android:paddingBottom="@dimen/main_block_center_padding"
-                android:text="@string/example_note_text" />
+                android:text="@string/example_note_text"
+                tools:ignore="TextViewEdits" />
 
         </LinearLayout>
 
@@ -182,7 +184,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:rotation="-90"
-        android:text="@string/settings"
+        android:text="@string/sign_out"
         android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="@id/main_block_left"

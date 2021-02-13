@@ -3,9 +3,9 @@
     
     <string name="read">Прочитать</string>
     <string name="create">Создать</string>
-    <string name="settings">Настройки</string>
+    <string name="sign_out">Выйти</string>
     <string name="previous">Предыдущий</string>
-    <string name="choose">Выбрать</string>
+    <string name="choose">Далее</string>
     <string name="next">Следующий</string>
     <string name="back">Назад</string>
     <string name="reset">Сброс</string>
@@ -16,15 +16,18 @@
     <string name="clear">Очистить</string>
     <string name="instructions">Инструкции</string>
 
-    <string name="yes">Да</string>
-    <string name="no">Нет</string>
+    <string name="yes">Подтвердить</string>
+    <string name="no">Отмена</string>
 
     <string name="edit_date">Изменить дату</string>
     <string name="edit_text">Изменить текст</string>
 
-    <string name="recording">Слушаем…</string>
+    <string name="recording">Говорите…</string>
+    <string name="no_voice_match">Не удалось распознать текст, пожалуйста, повторите!</string>
 
     <string name="text_control_tip">Проведите по экрану для\nвыбора действия</string>
+    <string name="data_is_loading">Пожалуйста, подождите, идёт синхронизация данных</string>
+    <string name="data_is_loaded">Синхронизация завершена</string>
 
     <string name="example_note_date">24.02.2020 – 23:00</string>
     <string name="example_note_title">Напоминания</string>
@@ -33,8 +36,43 @@
     <string name="new_note_text">Без текста</string>
 
     <string name="welcome_app">Добро пожаловать в Volli!</string>
-    <string name="welcome_blank_title">Заголовок</string>
-    <string name="welcome_blank_text">Здесь будет текст</string>
+    <string name="instructions_app">В приложении есть два способа управления. Первый — свайпами. Второй — голосом. Для повторения доступных действий нажмите на экран и ждите. Для активации голосового управления нажмите два раза на экран. А затем произнесите команду</string>
+
+    <string name="actions_app">Свайп вверх — %s. Вправо — %s. Вниз — %s. Влево — %s</string>
+    <string name="actions_confirm_app">Свайп вверх — %s. Вниз — %s</string>
+    <string name="available_actions">Доступные. действия.</string>
+    <string name="actions_choose">Выбрано — %s</string>
+
+    <string name="good_morning">Доброе утро, %s</string>
+    <string name="good_day">Добрый день, %s</string>
+    <string name="good_evening">Добрый вечер, %s</string>
+    <string name="good_night">Здравствуйте, %s</string>
+    <string name="today_events">На сегодня (%s) есть напоминания</string>
+    <string name="no_today_events">На сегодня (%s) нет напоминаний</string>
+    <string name="confirm">Вы подтверждаете?</string>
+    <string name="and">и</string>
+    <string name="at">в</string>
+
+    <string name="event">Напоминание</string>
+    <string name="event_date">Дата напоминания</string>
+    <string name="event_time">Время напоминания</string>
+    <string name="event_title">Название напоминания</string>
+    <string name="event_text">Текст напоминания</string>
+
+    <string name="choose_year">Выбор года</string>
+    <string name="choose_month">Выбор месяца</string>
+    <string name="choose_day">Выбор дня</string>
+    <string name="choose_hour">Выбор часа</string>
+    <string name="choose_minute">Выбор минуты</string>
+    <string name="current_date">Текущий %s</string>
+    <string name="current_time">Текущее время %s</string>
+
+    <string name="recorded">Записано</string>
+    <string name="event_removed">Напоминание удалено</string>
+
+    <string name="today">Сегодня</string>
+    <string name="tomorrow">Завтра</string>
+    <string name="yesterday">Вчера</string>
 
     <string name="auth_email">Email</string>
     <string name="auth_password">Пароль</string>
@@ -47,6 +85,7 @@
 
     <string name="feature_not_available">К сожалению, функция пока недоступна</string>
     <string name="network_not_available">Пожалуйста, проверьте подключение к сети!</string>
+    <string name="too_many_attempts">Слишком много попыток входа, попробуйте позже!</string>
     <string name="password_is_too_short">Пароль должен содержать минимум 6 символов</string>
     <string name="wrong_email">Неверный адрес</string>
     <string name="wrong_name">Неверное имя</string>
@@ -57,7 +96,19 @@
 
     <string name="no_events_found">Нет запланированных событий</string>
 
-    <string name="voice_control_enabled">Голосове управление включено</string>
-    <string name="voice_control_disabled">Голосове управление выключено</string>
+    <string name="voice_control_enabled">Голосовое управление включено</string>
+    <string name="voice_control_disabled">Голосовое управление выключено</string>
+
+    <string name="voice_speaker_error">Ошибка голосового вывода</string>
+
+    <string name="welcome_slide_text">welcome_text_slide_</string>
+    <string name="welcome_title_slide_0">@string/welcome_app</string>
+    <string name="welcome_text_slide_0">Добро пожаловать в Volli! Для продолжения проведите по экрану влево. Чтобы вернутся назад — вправо</string>
+    <string name="welcome_title_slide_1">Органайзер</string>
+    <string name="welcome_text_slide_1">Volli поможет вам организовать ваши дела. Напомнит о важных событиях и планах</string>
+    <string name="welcome_title_slide_2">Синхронизация</string>
+    <string name="welcome_text_slide_2">Ваши данные сохраняются в облачное хранилище. А затем синхронизируются на всех устройствах</string>
+    <string name="welcome_title_slide_3">Управление</string>
+    <string name="welcome_text_slide_3">@string/instructions_app</string>
 
 </resources>

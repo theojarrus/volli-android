@@ -11,8 +11,8 @@ public class ResUtils {
             return R.string.read;
         } else if (string.equals(context.getString(R.string.create))) {
             return R.string.create;
-        } else if (string.equals(context.getString(R.string.settings))) {
-            return R.string.settings;
+        } else if (string.equals(context.getString(R.string.sign_out))) {
+            return R.string.sign_out;
         } else if (string.equals(context.getString(R.string.back))) {
             return R.string.back;
         } else if (string.equals(context.getString(R.string.previous))) {

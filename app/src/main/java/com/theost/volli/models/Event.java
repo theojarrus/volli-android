@@ -1,5 +1,7 @@
 package com.theost.volli.models;
 
+import java.util.Objects;
+
 public class Event {
 
     private int day;
@@ -76,4 +78,23 @@ public class Event {
         return title;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Event event = (Event) o;
+        return day == event.day &&
+                hours == event.hours &&
+                minutes == event.minutes &&
+                month == event.month &&
+                year == event.year &&
+                id.equals(event.id) &&
+                text.equals(event.text) &&
+                title.equals(event.title);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(day, hours, minutes, month, year, id, text, title);
+    }
 }

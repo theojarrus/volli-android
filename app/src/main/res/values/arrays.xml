@@ -5,7 +5,7 @@
         <item>@string/read</item>
         <item>@string/instructions</item>
         <item>@string/create</item>
-        <item>@string/settings</item>
+        <item>@string/sign_out</item>
     </string-array>
 
     <string-array name="actions_list">
