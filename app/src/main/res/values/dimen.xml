@@ -16,4 +16,8 @@
     <dimen name="auth_padding_out">8dp</dimen>
     <dimen name="auth_padding_logo">40dp</dimen>
 
+    <!-- Small Screen -->
+    <dimen name="small_screen_title">8sp</dimen>
+    <dimen name="small_screen_text">6sp</dimen>
+
 </resources>

@@ -1,9 +1,24 @@
 plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('/Users/Theo/MyData/Info/Developer/theost-debug.keystore')
+            storePassword 'notbug0'
+            keyAlias 'theost-debug'
+            keyPassword 'notbug0'
+        }
+        release {
+            storeFile file('/Users/Theo/MyData/Info/Developer/theost-key.jks')
+            storePassword 'nottheost0'
+            keyPassword 'nottheost0'
+            keyAlias 'theost-key'
+        }
+    }
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
 
@@ -21,6 +36,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            signingConfig signingConfigs.debug
         }
     }
     compileOptions {
@@ -38,12 +57,18 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    // Libraries
+    // Firebase
     implementation platform('com.google.firebase:firebase-bom:26.4.0')
     implementation 'com.google.firebase:firebase-database:19.6.0'
     implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-crashlytics'
+    implementation 'com.google.firebase:firebase-analytics'
+
+    // Calendar View
     implementation 'com.github.prolificinteractive:material-calendarview:2.0.0'
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.0'
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.3.0'
+
+    // Welcome Screen
     implementation 'com.stephentuso:welcome:1.4.1'
 
 }

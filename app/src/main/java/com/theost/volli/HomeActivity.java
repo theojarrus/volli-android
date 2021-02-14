@@ -10,6 +10,7 @@ import android.os.CountDownTimer;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.speech.tts.UtteranceProgressListener;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -49,6 +50,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -72,11 +74,17 @@ public class HomeActivity extends AppCompatActivity {
     private static final String DATE_PATTERN_HOUR = "HH";
     private static final String DATE_PATTERN_MINUTE = "mm";
 
+    private static final String SENTENCE_DIVIDER = ". ";
+    private static final String DATE_DIVIDER = ".";
+    private static final String TIME_DIVIDER = ":";
+    private static final String SPACE = " ";
+
     private static final int[] DAY_TIME_INTERVALS = new int[]{6, 12, 18};
 
     private static final int SYNC_COUNTDOWN_MILLIS = 10000;
-
     private static final int DEFAULT_NOTE_TIME = 12;
+    private static final int LOW_RESOLUTION_HEIGHT = 1300;
+    private static final int LOW_RESOLUTION_WIDTH = 800;
 
     private static final int SCREEN_HOME = 0;
     private static final int SCREEN_CREATION = 1;
@@ -138,7 +146,9 @@ public class HomeActivity extends AppCompatActivity {
     private boolean isWelcomePlayed;
     private boolean isSyncWaiting;
     private boolean isConfirmation;
+    private boolean isVoiceLocked;
     private boolean isVoiceControlLocked;
+    private boolean isVoiceControlEnabled;
     private boolean disableDatabaseListener;
 
     private String[] currentActions;
@@ -166,7 +176,6 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setTheme(R.style.Theme_Volli);
         setContentView(R.layout.activity_home);
 
@@ -186,6 +195,7 @@ public class HomeActivity extends AppCompatActivity {
         gestureDetector = new GestureDetector(this, gestureListener);
 
         textSpeaker = new TextSpeaker(this);
+        textSpeaker.setListener(speakListener);
 
         Locale russianLocale = new Locale("RU", "ru");
         dateFormat = new SimpleDateFormat(DATE_PATTERN, russianLocale);
@@ -205,6 +215,8 @@ public class HomeActivity extends AppCompatActivity {
         themeColor = ContextCompat.getColor(this, R.color.blue);
         eventDecorator = new EventDecorator(themeColor);
 
+        checkSmallScreen();
+
         updateTodayInfo(true);
 
         createSpeechRecognizer();
@@ -213,6 +225,28 @@ public class HomeActivity extends AppCompatActivity {
     private void startAuthActivity() {
         Intent intent = new Intent(this, AuthActivity.class);
         startActivity(intent);
+    }
+
+    private void checkSmallScreen() {
+        if ((DisplayUtils.getScreenWidth(this) < LOW_RESOLUTION_WIDTH && DisplayUtils.getScreenHeight(this) < LOW_RESOLUTION_HEIGHT)) {
+            findViewById(R.id.main_block_center_3).setVisibility(View.GONE);
+            int buttonSize = getResources().getInteger(R.integer.small_screen_button);
+            float titleSize = getResources().getDimension(R.dimen.small_screen_title);
+            mNoteTextView.setTextSize(getResources().getDimension(R.dimen.small_screen_text));
+            calendarView.getLayoutParams().width = getResources().getInteger(R.integer.small_screen_calendar);
+            mBlockLeft.getLayoutParams().height = mBlockLeft.getLayoutParams().height - buttonSize;
+            mBlockRight.getLayoutParams().height = mBlockRight.getLayoutParams().height - buttonSize;
+            mBlockLeft.getLayoutParams().width = buttonSize;
+            mBlockRight.getLayoutParams().width = buttonSize;
+            mBlockTop.getLayoutParams().height = buttonSize;
+            mBlockBottom.getLayoutParams().height = buttonSize;
+            mTextTopView.setTextSize(titleSize);
+            mTextRightView.setTextSize(titleSize);
+            mTextBottomView.setTextSize(titleSize);
+            mTextLeftView.setTextSize(titleSize);
+            mNoteDateView.setTextSize(titleSize);
+            mNoteTitleView.setTextSize(titleSize);
+        }
     }
 
     @Override
@@ -285,7 +319,7 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onRmsChanged(float rmsdB) {
+        public void onRmsChanged(float dB) {
         }
 
         @Override
@@ -317,6 +351,24 @@ public class HomeActivity extends AppCompatActivity {
 
         @Override
         public void onEvent(int eventType, Bundle params) {
+        }
+    };
+
+    private final UtteranceProgressListener speakListener = new UtteranceProgressListener() {
+        @Override
+        public void onStart(String utteranceId) {
+            isVoiceLocked = true;
+        }
+
+        @Override
+        public void onDone(String utteranceId) {
+            isVoiceLocked = false;
+        }
+
+        @SuppressWarnings("deprecation")
+        @Override
+        public void onError(String utteranceId) {
+            isVoiceLocked = false;
         }
     };
 
@@ -408,13 +460,14 @@ public class HomeActivity extends AppCompatActivity {
                 updateEventMap(eventsMap, event);
                 syncEventDatabase(event);
                 try {
-                    sleep(2000);
+                    sleep(5000);
                     disableDatabaseListener = false;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }.start();
+        showMessageNow(R.string.event_created);
     }
 
     private void syncEventDatabase(Event event) {
@@ -436,7 +489,7 @@ public class HomeActivity extends AppCompatActivity {
                 TreeMap<Long, ArrayList<Event>> databaseEventMap = new TreeMap<>();
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     Event event = ds.getValue(Event.class);
-                    if (event != null) {
+                    if (event != null && event.isInitialized()) {
                         updateEventMap(databaseEventMap, event);
                     }
                 }
@@ -454,7 +507,7 @@ public class HomeActivity extends AppCompatActivity {
         long dateId = getDateId(event);
         ArrayList<Event> eventsList = new ArrayList<>();
         if (eventsMap.containsKey(dateId)) {
-            eventsList.addAll(eventsMap.get(dateId));
+            eventsList.addAll(Objects.requireNonNull(eventsMap.get(dateId)));
         }
         eventsList.add(event);
         eventsMap.put(dateId, eventsList);
@@ -491,14 +544,14 @@ public class HomeActivity extends AppCompatActivity {
         isLoaded = true;
     }
 
-    private void showMessage(int errorId) {
-        DisplayUtils.showToast(this, errorId);
-        textSpeaker.speakAfter(getString(errorId));
+    private void showMessage(int messageId) {
+        DisplayUtils.showToast(this, messageId);
+        textSpeaker.speakAfter(getString(messageId));
     }
 
-    private void showMessageNow(int errorId) {
-        DisplayUtils.showToast(this, errorId);
-        textSpeaker.speak(getString(errorId));
+    private void showMessageNow(int messageId) {
+        DisplayUtils.showToast(this, messageId);
+        textSpeaker.speak(getString(messageId));
     }
 
     private final CountDownTimer cloudSyncTask = new CountDownTimer(SYNC_COUNTDOWN_MILLIS, SYNC_COUNTDOWN_MILLIS) {
@@ -520,7 +573,13 @@ public class HomeActivity extends AppCompatActivity {
             String email = firebaseUser.getEmail();
             if (email != null) {
                 firebaseAuth.fetchSignInMethodsForEmail(email).addOnCompleteListener(task -> {
-                    boolean isValid = !task.getResult().getSignInMethods().isEmpty();
+                    boolean isValid = true;
+                    try {
+                        isValid = !Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getSignInMethods()).isEmpty();
+                    } catch (Exception e) {
+                        // ignore if user is offline
+                        e.printStackTrace();
+                    }
                     if (isValid) {
                         getDatabase();
                     } else {
@@ -544,66 +603,83 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void onLongTapped() {
-        playActions();
+        if (checkLoaded()) {
+            playActions();
+        }
     }
 
     private void onDoubleTapped() {
-        if (!isVoiceControlLocked) {
-            if (!isVoiceEnabled) {
-                enableVoiceControl();
-            } else {
-                disableVoiceControl();
+        if (checkLoaded()) {
+            if (!isVoiceControlLocked && isLoaded) {
+                if (!isVoiceControlEnabled) {
+                    enableVoiceControl();
+                } else {
+                    disableVoiceControl();
+                }
             }
         }
     }
 
     private void enableVoiceControl() {
+        isVoiceControlEnabled = true;
         showMessageNow(R.string.voice_control_enabled);
         setSpeechRecognizerRequest(MODE_VOICE_ACTION);
         startSpeechRecognizer();
     }
 
     private void disableVoiceControl() {
+        isVoiceControlEnabled = false;
         showMessageNow(R.string.voice_control_disabled);
         setSpeechRecognizerRequest(currentVoiceMode);
         stopSpeechRecognizer();
     }
 
+    private void restoreVoiceControl() {
+        isVoiceControlLocked = false;
+        setSpeechRecognizerRequest(MODE_VOICE_ACTION);
+    }
+
     private void onTextRecognized(String text) {
-        text = text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
-        if (currentScreen == SCREEN_CREATION_CONTENT) {
-            if (currentVoiceRequest == MODE_VOICE_TITLE) {
-                currentVoiceRequest = MODE_VOICE_ACTION;
-                mNoteTitleView.setText(text);
-                updateNoteSpan();
-                isVoiceControlLocked = false;
-                textSpeaker.speakAfter(getString(R.string.recorded));
-                playActions();
-            } else if (currentVoiceRequest == MODE_VOICE_TEXT) {
-                currentVoiceRequest = MODE_VOICE_ACTION;
-                mNoteTextView.setText(text);
-                updateNoteSpan();
-                isVoiceControlLocked = false;
-                textSpeaker.speakAfter(getString(R.string.recorded));
-                playActions();
+        if (!isVoiceLocked) {
+            text = text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
+            if (isVoiceControlLocked) {
+                if (currentVoiceRequest == MODE_VOICE_TITLE) {
+                    currentVoiceRequest = MODE_VOICE_ACTION;
+                    mNoteTitleView.setText(text);
+                    updateNoteSpan();
+                    restoreVoiceControl();
+                    textSpeaker.speakAfter(getString(R.string.recorded));
+                    playActions();
+                } else if (currentVoiceRequest == MODE_VOICE_TEXT) {
+                    currentVoiceRequest = MODE_VOICE_ACTION;
+                    mNoteTextView.setText(text);
+                    updateNoteSpan();
+                    restoreVoiceControl();
+                    textSpeaker.speakAfter(getString(R.string.recorded));
+                    playActions();
+                }
+            } else if (currentVoiceRequest == MODE_VOICE_ACTION) {
+                text = text.toLowerCase();
+                if (text.contains(getString(R.string.repeat))) {
+                    onLongTapped();
+                } else {
+                    String actionOne = currentActions[0].trim().toLowerCase();
+                    String actionTwo = currentActions[1].trim().toLowerCase();
+                    String actionThree = currentActions[2].trim().toLowerCase();
+                    String actionFour = currentActions[3].trim().toLowerCase();
+                    if (text.contains(actionOne.substring(0, (actionOne.length() > 5 ? actionOne.length() - 2 : actionOne.length())))) {
+                        onMovementDetected(OnGestureListener.Direction.UP);
+                    } else if (!actionTwo.equals("") && text.contains(actionTwo.substring(0, (actionTwo.length() > 5 ? actionTwo.length() - 2 : actionTwo.length())))) {
+                        onMovementDetected(OnGestureListener.Direction.RIGHT);
+                    } else if (text.contains(actionThree.substring(0, (actionThree.length() > 5 ? actionThree.length() - 2 : actionThree.length())))) {
+                        onMovementDetected(OnGestureListener.Direction.DOWN);
+                    } else if (!actionFour.equals("") && text.contains(actionFour.substring(0, (actionFour.length() > 5 ? actionFour.length() - 2 : actionFour.length())))) {
+                        onMovementDetected(OnGestureListener.Direction.LEFT);
+                    }
+                }
             }
-        } else if (currentVoiceRequest == MODE_VOICE_ACTION) {
-            text = text.toLowerCase();
-            String actionOne = currentActions[0].trim().toLowerCase();
-            String actionTwo = currentActions[1].trim().toLowerCase();
-            String actionThree = currentActions[2].trim().toLowerCase();
-            String actionFour = currentActions[3].trim().toLowerCase();
-            if (text.contains(actionOne.substring(0, (actionOne.length() > 5 ? actionOne.length() - 2 : actionOne.length())))) {
-                onMovementDetected(OnGestureListener.Direction.UP);
-            } else if (!actionOne.equals("") && text.contains(actionTwo.substring(0, (actionTwo.length() > 5 ? actionTwo.length() - 2 : actionTwo.length())))) {
-                onMovementDetected(OnGestureListener.Direction.RIGHT);
-            } else if (text.contains(actionThree.substring(0, (actionThree.length() > 5 ? actionThree.length() - 2 : actionThree.length())))) {
-                onMovementDetected(OnGestureListener.Direction.DOWN);
-            } else if (!actionFour.equals("") && text.contains(actionFour.substring(0, (actionFour.length() > 5 ? actionFour.length() - 2 : actionFour.length())))) {
-                onMovementDetected(OnGestureListener.Direction.LEFT);
-            }
-            startSpeechRecognizer();
         }
+        if (isVoiceControlEnabled) startSpeechRecognizer();
     }
 
     private void onTextNotRecognized() {
@@ -611,7 +687,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void onMovementDetected(OnGestureListener.Direction direction) {
-        if (isVoiceEnabled && currentVoiceRequest != MODE_VOICE_ACTION) stopSpeechRecognizer();
+        checkVoiceControl();
         if (checkLoaded()) {
             boolean isNeedChange = performAction(direction.getIndex());
             playActions();
@@ -699,7 +775,7 @@ public class HomeActivity extends AppCompatActivity {
     private void updateNoteInfo(Event event) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, event.getYear());
-        calendar.set(Calendar.MONTH, event.getMonth());
+        calendar.set(Calendar.MONTH, event.getMonth() - 1);
         calendar.set(Calendar.DAY_OF_MONTH, event.getDay());
         calendar.set(Calendar.HOUR_OF_DAY, event.getHours());
         calendar.set(Calendar.MINUTE, event.getMinutes());
@@ -716,7 +792,7 @@ public class HomeActivity extends AppCompatActivity {
         for (Long key : eventsMap.keySet()) {
             if (String.valueOf(key).contains(todayDateId) && key > todayTimeId) {
                 nextEventKey = key;
-                return eventsMap.get(key).get(0);
+                return Objects.requireNonNull(eventsMap.get(key)).get(0);
             } else {
                 nextEventKey = key;
                 if (key >= tomorrowTimeId) {
@@ -747,13 +823,15 @@ public class HomeActivity extends AppCompatActivity {
         if (todayDate == null || !todayDate.equals(todayNewDate)) {
             todayDate = todayNewDate;
             todayDay = CalendarDay.from(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
-            if (todayDecorator == null) {
-                todayDecorator = new TodayDecorator(todayDay, ContextCompat.getDrawable(this, R.drawable.calendar_today), themeColor);
-            } else {
-                calendarView.removeDecorator(todayDecorator);
-                todayDecorator.changeDay(todayDay);
+            if (currentScreen == SCREEN_HOME) {
+                if (todayDecorator == null) {
+                    todayDecorator = new TodayDecorator(todayDay, ContextCompat.getDrawable(this, R.drawable.calendar_today), themeColor);
+                } else {
+                    calendarView.removeDecorator(todayDecorator);
+                    todayDecorator.changeDay(todayDay);
+                }
+                calendarView.addDecorator(todayDecorator);
             }
-            calendarView.addDecorator(todayDecorator);
         }
     }
 
@@ -887,7 +965,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void playSync() {
         if (isSyncWaiting) {
-            textSpeaker.speakAfter(getString(R.string.data_is_loaded));
+            showMessage(R.string.data_is_loaded);
         }
     }
 
@@ -903,15 +981,15 @@ public class HomeActivity extends AppCompatActivity {
         } else {
             welcomeText.append(getString(R.string.good_evening));
         }
-        welcomeText.append(". ");
+        welcomeText.append(SENTENCE_DIVIDER);
         if (todayEvent != null) {
-            welcomeText.append(String.format(getString(R.string.today_events), dateFormat.format(calendar.getTime()))).append(". ");
+            welcomeText.append(String.format(getString(R.string.today_events), dateFormat.format(calendar.getTime()))).append(SENTENCE_DIVIDER);
             List<Event> todayEventList = eventsMap.get(nextEventKey);
-            for (int i = 0; i < todayEventList.size(); i++) {
+            for (int i = 0; i < Objects.requireNonNull(todayEventList).size(); i++) {
                 Event event = todayEventList.get(i);
-                welcomeText.append(event.getTitle()).append(" ").append(getString(R.string.at)).append(" ").append(getDigitStringTime(event.getHours())).append(":").append(getDigitStringTime(event.getMinutes()));
+                welcomeText.append(event.getTitle()).append(SPACE).append(getString(R.string.at)).append(SPACE).append(getDigitStringTime(event.getHours())).append(TIME_DIVIDER).append(getDigitStringTime(event.getMinutes()));
                 if (i != todayEventList.size() - 1) {
-                    welcomeText.append(" ").append(getString(R.string.and)).append(" ");
+                    welcomeText.append(SPACE).append(getString(R.string.and)).append(SPACE);
                 }
             }
         } else {
@@ -923,7 +1001,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void playActions() {
         if (checkLoaded() && !isVoiceControlLocked) {
-            String actionsInstructions = getString(R.string.available_actions) + ". ";
+            String actionsInstructions = getString(R.string.available_actions) + SENTENCE_DIVIDER;
             if (currentActions[1].trim().equals("") || currentActions[3].trim().equals("")) {
                 actionsInstructions += String.format(String.valueOf(getString(R.string.actions_confirm_app)),
                         currentActions[0], currentActions[2]);
@@ -942,26 +1020,26 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void playEvent(Event event) {
-        String eventText = getString(R.string.event) + " " + event.getTitle() + ". " + getString(R.string.event_date) + ". ";
+        String eventText = getString(R.string.event) + SENTENCE_DIVIDER + event.getTitle() + SENTENCE_DIVIDER + getString(R.string.event_date) + SENTENCE_DIVIDER;
         String eventDateId = String.valueOf(getDateId(event));
-        eventText += getEventSpeakDate(event) + ". " + getVoiceDay(eventDateId) + getString(R.string.event_text) + ". " + event.getText() + ". ";
+        eventText += getVoiceDay(eventDateId) + SENTENCE_DIVIDER + getEventSpeakDate(event) + SENTENCE_DIVIDER + getString(R.string.event_text) + SENTENCE_DIVIDER + event.getText() + SENTENCE_DIVIDER;
         textSpeaker.speakAfter(eventText);
     }
 
     private String getVoiceDay(String eventDateId) {
         if (eventDateId.contains(todayDateId)) {
-            return getString(R.string.today) + ". ";
+            return getString(R.string.today) + SENTENCE_DIVIDER;
         } else if (eventDateId.contains(String.valueOf(Integer.parseInt(todayDateId) + 1))) {
-            return getString(R.string.tomorrow) + ". ";
+            return getString(R.string.tomorrow) + SENTENCE_DIVIDER;
         } else if (eventDateId.contains(String.valueOf(Integer.parseInt(todayDateId) - 1))) {
-            return getString(R.string.yesterday) + ". ";
+            return getString(R.string.yesterday) + SENTENCE_DIVIDER;
         }
         return "";
     }
 
     private String getEventSpeakDate(Event event) {
-        return getDigitStringTime(event.getDay()) + "." + getDigitStringTime(event.getMonth()) + "." + event.getYear() + " "
-                + getDigitStringTime(event.getHours()) + ":" + getDigitStringTime(event.getMinutes());
+        return getDigitStringTime(event.getDay()) + DATE_DIVIDER + getDigitStringTime(event.getMonth()) + DATE_DIVIDER + event.getYear() + SPACE
+                + getDigitStringTime(event.getHours()) + TIME_DIVIDER + getDigitStringTime(event.getMinutes());
     }
 
     private void cancelSignOut() {
@@ -991,6 +1069,12 @@ public class HomeActivity extends AppCompatActivity {
         updateNoteSpan();
     }
 
+    private void checkVoiceControl() {
+        if (isVoiceEnabled && !isVoiceControlEnabled) {
+            stopSpeechRecognizer();
+        }
+    }
+
     @SuppressLint("NonConstantResourceId")
     private boolean performAddScreenAction(int actionId) {
         switch (actionId) {
@@ -1010,19 +1094,27 @@ public class HomeActivity extends AppCompatActivity {
         return true;
     }
 
+    private void speakRecord() {
+        if (currentVoiceMode == MODE_VOICE_TITLE) {
+            textSpeaker.speakAfter(getString(R.string.note_title_edit));
+        } else if (currentVoiceMode == MODE_VOICE_TEXT) {
+            textSpeaker.speakAfter(getString(R.string.note_text_edit));
+        }
+    }
+
     private void speakDate() {
         String dateText = "";
         if (currentDateMode == MODE_DATE_YEAR) {
-            dateText += getString(R.string.choose_year) + ". " + String.format(String.valueOf(getString(R.string.current_date)), calendar.get(Calendar.YEAR));
+            dateText += getString(R.string.choose_year) + SENTENCE_DIVIDER + String.format(String.valueOf(getString(R.string.current_date)), calendar.get(Calendar.YEAR));
         } else if (currentDateMode == MODE_DATE_MONTH) {
-            dateText += getString(R.string.choose_month) + ". " + String.format(String.valueOf(getString(R.string.current_date)), russianMonths[calendar.get(Calendar.MONTH)]);
+            dateText += getString(R.string.choose_month) + SENTENCE_DIVIDER + String.format(String.valueOf(getString(R.string.current_date)), russianMonths[calendar.get(Calendar.MONTH)]);
         } else if (currentDateMode == MODE_DATE_DAY) {
             String eventDateId = calendar.get(Calendar.YEAR) + getDigitStringTime(calendar.get(Calendar.MONTH) + 1) + getDigitStringTime(calendar.get(Calendar.DAY_OF_MONTH)) + "0000";
-            dateText += getString(R.string.choose_day) + ". " + String.format(String.valueOf(getString(R.string.current_date)), calendar.get(Calendar.DAY_OF_MONTH)) + ". " + getVoiceDay(eventDateId);
+            dateText += getString(R.string.choose_day) + SENTENCE_DIVIDER + String.format(String.valueOf(getString(R.string.current_date)), calendar.get(Calendar.DAY_OF_MONTH)) + SENTENCE_DIVIDER + getVoiceDay(eventDateId);
         } else if (currentDateMode == MODE_DATE_HOUR) {
-            dateText += getString(R.string.choose_hour) + ". " + String.format(String.valueOf(getString(R.string.current_time)), getDigitStringTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":" + getDigitStringTime(calendar.get(Calendar.MINUTE)));
+            dateText += getString(R.string.choose_hour) + SENTENCE_DIVIDER + String.format(String.valueOf(getString(R.string.current_time)), getDigitStringTime(calendar.get(Calendar.HOUR_OF_DAY)) + TIME_DIVIDER + getDigitStringTime(calendar.get(Calendar.MINUTE)));
         } else if (currentDateMode == MODE_DATE_MINUTE) {
-            dateText += getString(R.string.choose_minute) + ". " + String.format(String.valueOf(getString(R.string.current_time)), getDigitStringTime(calendar.get(Calendar.HOUR_OF_DAY)) + ":" + getDigitStringTime(calendar.get(Calendar.MINUTE)));
+            dateText += getString(R.string.choose_minute) + SENTENCE_DIVIDER + String.format(String.valueOf(getString(R.string.current_time)), getDigitStringTime(calendar.get(Calendar.HOUR_OF_DAY)) + TIME_DIVIDER + getDigitStringTime(calendar.get(Calendar.MINUTE)));
         }
         textSpeaker.speakAfter(dateText);
     }
@@ -1070,9 +1162,10 @@ public class HomeActivity extends AppCompatActivity {
             if (currentDateMode == MODE_DATE_MINUTE) {
                 currentVoiceMode = MODE_VOICE_TITLE;
                 updateScreen(SCREEN_CREATION_CONTENT, R.array.actions_voice);
+                updateContentScreen();
                 updateDateSpan(true);
                 updateNoteSpan();
-                speakDate();
+                speakRecord();
                 return true;
             } else {
                 currentDateMode += 1;
@@ -1097,12 +1190,29 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    private boolean updateContentScreen() {
+        if (currentVoiceMode == MODE_VOICE_TITLE) {
+            if (mNoteTitleView.getText().toString().equals(getString(R.string.new_note_title))) {
+                return replaceCurrentData(R.string.read, R.string.record);
+            } else {
+                return replaceCurrentData(R.string.record, R.string.read);
+            }
+        } else if (currentVoiceMode == MODE_VOICE_TEXT) {
+            if (mNoteTextView.getText().toString().equals(getString(R.string.new_note_text))) {
+                return replaceCurrentData(R.string.read, R.string.record);
+            } else {
+                return replaceCurrentData(R.string.record, R.string.read);
+            }
+        }
+        return false;
+    }
+
     @SuppressLint("NonConstantResourceId")
     private boolean preformAddRecordScreenAction(int actionId) {
-        isVoiceControlLocked = false;
         switch (actionId) {
             case R.string.reset:
                 resetVoice();
+                speakRecord();
                 return replaceCurrentData(R.string.read, R.string.record);
             case R.string.choose:
                 return changeVoiceMode(true);
@@ -1136,13 +1246,15 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void readNoteVoice() {
-        stopSpeechRecognizer();
+        checkVoiceControl();
         updateNoteVoice();
         updateNoteSpan();
+        updateContentScreen();
+        restoreVoiceControl();
         if (currentVoiceMode == MODE_VOICE_TITLE) {
-            textSpeaker.speakAfter(getString(R.string.event_title) + ". " + mNoteTitleView.getText().toString());
+            textSpeaker.speakAfter(getString(R.string.event_title) + SENTENCE_DIVIDER + mNoteTitleView.getText().toString());
         } else if (currentVoiceMode == MODE_VOICE_TEXT) {
-            textSpeaker.speakAfter(getString(R.string.event_text) + ". " + mNoteTextView.getText().toString());
+            textSpeaker.speakAfter(getString(R.string.event_text) + SENTENCE_DIVIDER + mNoteTextView.getText().toString());
         }
     }
 
@@ -1159,7 +1271,8 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void resetVoice() {
-        stopSpeechRecognizer();
+        checkVoiceControl();
+        restoreVoiceControl();
         if (currentVoiceMode == MODE_VOICE_TITLE) {
             resetNoteTitle();
         } else if (currentVoiceMode == MODE_VOICE_TEXT) {
@@ -1173,7 +1286,8 @@ public class HomeActivity extends AppCompatActivity {
             if (currentVoiceMode == MODE_VOICE_TITLE) {
                 currentVoiceMode = MODE_VOICE_TEXT;
                 updateNoteSpan();
-                return replaceCurrentData(R.string.read, R.string.record);
+                speakRecord();
+                return updateContentScreen();
             } else {
                 currentVoiceMode = MODE_VOICE_TITLE;
                 createNewEvent(mNoteTitleView.getText().toString(), mNoteTextView.getText().toString());
@@ -1190,11 +1304,13 @@ public class HomeActivity extends AppCompatActivity {
                 updateScreen(SCREEN_CREATION, R.array.actions_list);
                 updateDateSpan(false);
                 updateNoteSpan();
+                speakDate();
                 return true;
             } else {
                 currentVoiceMode = MODE_VOICE_TITLE;
                 updateNoteSpan();
-                return replaceCurrentData(R.string.read, R.string.record);
+                speakRecord();
+                return updateContentScreen();
             }
         }
     }
@@ -1231,7 +1347,7 @@ public class HomeActivity extends AppCompatActivity {
     private void readEvent() {
         if (eventsMap.size() > 0 && eventsMap.containsKey(nextEventKey)) {
             currentReadKey = nextEventKey;
-            currentReadIndex = eventsMap.get(currentReadKey).size() - 1;
+            currentReadIndex = 0;
             updateScreen(SCREEN_READING, R.array.actions_read);
             updateEventInfo();
         } else {
@@ -1242,7 +1358,7 @@ public class HomeActivity extends AppCompatActivity {
     private void updateEventInfo() {
         if (eventsMap.containsKey(currentReadKey)) {
             ArrayList<Event> dateEvents = eventsMap.get(currentReadKey);
-            if (dateEvents.size() > 0) {
+            if (Objects.requireNonNull(dateEvents).size() > 0) {
                 Event currentEvent = dateEvents.get(currentReadIndex);
                 CalendarDay selectedDay = CalendarDay.from(currentEvent.getYear(), currentEvent.getMonth(), currentEvent.getDay());
                 updateSelectedDay(selectedDay);
@@ -1252,7 +1368,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void changeReadEvent(int direction) {
-        if (currentReadIndex + direction >= 0 && currentReadIndex + direction < eventsMap.get(currentReadKey).size()) {
+        if (currentReadIndex + direction >= 0 && currentReadIndex + direction < Objects.requireNonNull(eventsMap.get(currentReadKey)).size()) {
             currentReadIndex += direction;
         } else {
             ArrayList<Long> keyList = new ArrayList<>(eventsMap.keySet());
@@ -1267,7 +1383,7 @@ public class HomeActivity extends AppCompatActivity {
             if (direction >= 0) {
                 currentReadIndex = 0;
             } else {
-                currentReadIndex = eventsMap.get(currentReadKey).size() - 1;
+                currentReadIndex = Objects.requireNonNull(eventsMap.get(currentReadKey)).size() - 1;
             }
         }
         updateEventInfo();
@@ -1283,22 +1399,40 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void deleteEvent() {
-        Event event = eventsMap.get(currentReadKey).get(currentReadIndex);
-        firebaseUserReference.child(DATABASE_NOTE + event.getId()).removeValue();
-        changeDayEvent(CalendarDay.from(event.getYear(), event.getMonth(), event.getDay()), false);
+        ArrayList<Event> events = new ArrayList<>(Objects.requireNonNull(eventsMap.get(currentReadKey)));
+        ArrayList<Long> keys = new ArrayList<>(eventsMap.keySet());
         showMessageNow(R.string.event_removed);
-        if (eventsMap.size() > 1) {
-            ArrayList<Long> keyList = new ArrayList<>(eventsMap.keySet());
-            if (keyList.indexOf(currentReadKey) == keyList.size() - 1) {
-                changeReadEvent(-1);
+        Event event = events.get(currentReadIndex);
+        firebaseUserReference.child(DATABASE_NOTE + event.getId()).removeValue();
+        events.remove(currentReadIndex);
+        eventsMap.remove(currentReadKey);
+        if (eventsMap.size() > 0 || events.size() > 0) {
+            if (events.size() > 0) {
+                eventsMap.put(currentReadKey, events);
+                if (currentReadIndex > events.size() - 1) {
+                    currentReadIndex -= 1;
+                } else {
+                    currentReadIndex += 1;
+                }
             } else {
-                changeReadEvent(1);
+                String keyDateId = String.valueOf(currentReadKey).substring(0, 8);
+                int keyIndex = keys.indexOf(currentReadKey);
+                if (keyIndex < keys.size() - 1) {
+                    currentReadKey = keys.get(keyIndex + 1);
+                    currentReadIndex = 0;
+                } else {
+                    currentReadKey = keys.get(keyIndex - 1);
+                    currentReadIndex = Objects.requireNonNull(eventsMap.get(currentReadKey)).size() - 1;
+                }
+                if (!String.valueOf(currentReadKey).contains(keyDateId)) {
+                    changeDayEvent(CalendarDay.from(event.getYear(), event.getMonth(), event.getDay()), false);
+                }
             }
+            changeReadEvent(0);
         } else {
             showMessage(R.string.no_events_found);
             readEventBack();
         }
-        eventsMap.remove(currentReadKey);
     }
 
     private void readEventBack() {

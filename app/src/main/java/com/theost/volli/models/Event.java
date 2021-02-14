@@ -78,6 +78,10 @@ public class Event {
         return title;
     }
 
+    public boolean isInitialized() {
+        return id != null && text != null && title != null && month >= 0 && month <= 12 && hours >= 0 && hours < 24 && minutes >= 0 && minutes < 60;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

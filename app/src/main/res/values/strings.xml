@@ -19,6 +19,8 @@
     <string name="yes">Подтвердить</string>
     <string name="no">Отмена</string>
 
+    <string name="repeat">Повтор</string>
+
     <string name="edit_date">Изменить дату</string>
     <string name="edit_text">Изменить текст</string>
 
@@ -35,11 +37,14 @@
     <string name="new_note_title">Без названия</string>
     <string name="new_note_text">Без текста</string>
 
-    <string name="welcome_app">Добро пожаловать в Volli!</string>
-    <string name="instructions_app">В приложении есть два способа управления. Первый — свайпами. Второй — голосом. Для повторения доступных действий нажмите на экран и ждите. Для активации голосового управления нажмите два раза на экран. А затем произнесите команду</string>
+    <string name="note_title_edit">Редактирование названия напоминания</string>
+    <string name="note_text_edit">Редактирование текста напоминания</string>
 
-    <string name="actions_app">Свайп вверх — %s. Вправо — %s. Вниз — %s. Влево — %s</string>
-    <string name="actions_confirm_app">Свайп вверх — %s. Вниз — %s</string>
+    <string name="welcome_app">Добро пожаловать в Volli!</string>
+    <string name="instructions_app">В приложении есть два способа управления. Первый — свайпами. Второй — голосом. Для активации голосового управления нажмите два раза на экран. А затем произнесите команду. Для повторения доступных действий нажмите на экран и ждите, либо произнесите "повтор"</string>
+
+    <string name="actions_app">Свайп вверх — %1$s. Вправо — %2$s. Вниз — %3$s. Влево — %4$s</string>
+    <string name="actions_confirm_app">Свайп вверх — %1$s. Вниз — %2$s</string>
     <string name="available_actions">Доступные. действия.</string>
     <string name="actions_choose">Выбрано — %s</string>
 
@@ -69,6 +74,7 @@
 
     <string name="recorded">Записано</string>
     <string name="event_removed">Напоминание удалено</string>
+    <string name="event_created">Напоминание создано</string>
 
     <string name="today">Сегодня</string>
     <string name="tomorrow">Завтра</string>
@@ -103,7 +109,7 @@
 
     <string name="welcome_slide_text">welcome_text_slide_</string>
     <string name="welcome_title_slide_0">@string/welcome_app</string>
-    <string name="welcome_text_slide_0">Добро пожаловать в Volli! Для продолжения проведите по экрану влево. Чтобы вернутся назад — вправо</string>
+    <string name="welcome_text_slide_0">Добро пожаловать в Volli! Для продолжения проведите по экрану влево</string>
     <string name="welcome_title_slide_1">Органайзер</string>
     <string name="welcome_text_slide_1">Volli поможет вам организовать ваши дела. Напомнит о важных событиях и планах</string>
     <string name="welcome_title_slide_2">Синхронизация</string>

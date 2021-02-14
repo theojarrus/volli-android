@@ -2,6 +2,7 @@ package com.theost.volli.widgets;
 
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 
 import com.theost.volli.R;
 import com.theost.volli.utils.DisplayUtils;
@@ -29,13 +30,13 @@ public class TextSpeaker {
 
     public void speak(String text) {
         if (ttsEnabled) {
-            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "id");
         }
     }
 
     public void speakAfter(String text) {
         if (ttsEnabled) {
-            textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null, null);
+            textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null, "id");
         }
     }
 
@@ -47,6 +48,10 @@ public class TextSpeaker {
 
     public boolean isInitialized() {
         return ttsEnabled;
+    }
+
+    public void setListener(UtteranceProgressListener speakListener) {
+        textToSpeech.setOnUtteranceProgressListener(speakListener);
     }
 
 }

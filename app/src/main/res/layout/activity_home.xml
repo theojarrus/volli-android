@@ -21,7 +21,9 @@
             android:layout_width="@dimen/main_block_center_width"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/main_block_center_padding"
-            android:background="@drawable/main_block_center">
+            android:background="@drawable/main_block_center"
+            android:gravity="center_horizontal"
+            android:fitsSystemWindows="true">
 
             <com.prolificinteractive.materialcalendarview.MaterialCalendarView
                 android:id="@+id/calendarView"
@@ -36,10 +38,11 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/main_block_center_3"
+            android:id="@+id/main_block_center_2"
             android:layout_width="@dimen/main_block_center_width"
             android:layout_height="0dp"
             android:layout_marginTop="@dimen/main_block_center_padding"
+            android:layout_marginBottom="@dimen/main_block_center_padding"
             android:layout_weight="1"
             android:gravity="center_horizontal"
             android:background="@drawable/main_block_center"
@@ -81,10 +84,9 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/main_block_center_2"
+            android:id="@+id/main_block_center_3"
             android:layout_width="@dimen/main_block_center_width"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/main_block_center_padding"
             android:layout_marginBottom="@dimen/main_block_center_padding"
             android:background="@drawable/main_block_center"
             android:gravity="center"

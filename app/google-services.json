@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "419118879776",
+    "firebase_url": "https://volli-app-default-rtdb.firebaseio.com",
     "project_id": "volli-app",
     "storage_bucket": "volli-app.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "419118879776-cobpmfs5ku9u7cqhcq8ahnnp1tq50iae.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.theost.volli",
+            "certificate_hash": "c95ecc93fe23b8093deefd1fdcf6731241361e59"
+          }
+        },
         {
           "client_id": "419118879776-qf9rvk2d91qcm37u2h0r44aptdcq8f90.apps.googleusercontent.com",
           "client_type": 1,
