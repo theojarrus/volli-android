@@ -7,6 +7,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -109,6 +112,9 @@ public class HomeActivity extends AppCompatActivity {
     private static final int ANIMATION_CODE_X = 0;
     private static final int ANIMATION_CODE_Y = 1;
 
+    private static final int STOP_SPEECH_RECOGNIZER = 0;
+    private static final int START_SPEECH_RECOGNIZER = 1;
+
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference firebaseUserReference;
     private FirebaseAuth firebaseAuth;
@@ -146,7 +152,6 @@ public class HomeActivity extends AppCompatActivity {
     private boolean isWelcomePlayed;
     private boolean isSyncWaiting;
     private boolean isConfirmation;
-    private boolean isVoiceLocked;
     private boolean isVoiceControlLocked;
     private boolean isVoiceControlEnabled;
     private boolean disableDatabaseListener;
@@ -354,21 +359,31 @@ public class HomeActivity extends AppCompatActivity {
         }
     };
 
+    private final Handler TextToSpeechHandler = new Handler(Looper.getMainLooper()) {
+        public void handleMessage(Message msg){
+            super.handleMessage(msg);
+            if (msg.what == STOP_SPEECH_RECOGNIZER) {
+                stopSpeechRecognizer();
+            } else if (msg.what == START_SPEECH_RECOGNIZER) {
+                startSpeechRecognizer();
+            }
+        }
+    };
+
     private final UtteranceProgressListener speakListener = new UtteranceProgressListener() {
         @Override
         public void onStart(String utteranceId) {
-            isVoiceLocked = true;
+            TextToSpeechHandler.sendEmptyMessage(STOP_SPEECH_RECOGNIZER);
         }
 
         @Override
         public void onDone(String utteranceId) {
-            isVoiceLocked = false;
+            TextToSpeechHandler.sendEmptyMessage(START_SPEECH_RECOGNIZER);
         }
 
         @SuppressWarnings("deprecation")
         @Override
         public void onError(String utteranceId) {
-            isVoiceLocked = false;
         }
     };
 
@@ -408,6 +423,7 @@ public class HomeActivity extends AppCompatActivity {
     private void stopSpeechRecognizer() {
         if (speechRecognizer != null && isVoiceEnabled) {
             speechRecognizer.stopListening();
+            speechRecognizer.cancel();
             isVoiceEnabled = false;
         }
     }
@@ -640,42 +656,40 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void onTextRecognized(String text) {
-        if (!isVoiceLocked) {
-            text = text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
-            if (isVoiceControlLocked) {
-                if (currentVoiceRequest == MODE_VOICE_TITLE) {
-                    currentVoiceRequest = MODE_VOICE_ACTION;
-                    mNoteTitleView.setText(text);
-                    updateNoteSpan();
-                    restoreVoiceControl();
-                    textSpeaker.speakAfter(getString(R.string.recorded));
-                    playActions();
-                } else if (currentVoiceRequest == MODE_VOICE_TEXT) {
-                    currentVoiceRequest = MODE_VOICE_ACTION;
-                    mNoteTextView.setText(text);
-                    updateNoteSpan();
-                    restoreVoiceControl();
-                    textSpeaker.speakAfter(getString(R.string.recorded));
-                    playActions();
-                }
-            } else if (currentVoiceRequest == MODE_VOICE_ACTION) {
-                text = text.toLowerCase();
-                if (text.contains(getString(R.string.repeat))) {
-                    onLongTapped();
-                } else {
-                    String actionOne = currentActions[0].trim().toLowerCase();
-                    String actionTwo = currentActions[1].trim().toLowerCase();
-                    String actionThree = currentActions[2].trim().toLowerCase();
-                    String actionFour = currentActions[3].trim().toLowerCase();
-                    if (text.contains(actionOne.substring(0, (actionOne.length() > 5 ? actionOne.length() - 2 : actionOne.length())))) {
-                        onMovementDetected(OnGestureListener.Direction.UP);
-                    } else if (!actionTwo.equals("") && text.contains(actionTwo.substring(0, (actionTwo.length() > 5 ? actionTwo.length() - 2 : actionTwo.length())))) {
-                        onMovementDetected(OnGestureListener.Direction.RIGHT);
-                    } else if (text.contains(actionThree.substring(0, (actionThree.length() > 5 ? actionThree.length() - 2 : actionThree.length())))) {
-                        onMovementDetected(OnGestureListener.Direction.DOWN);
-                    } else if (!actionFour.equals("") && text.contains(actionFour.substring(0, (actionFour.length() > 5 ? actionFour.length() - 2 : actionFour.length())))) {
-                        onMovementDetected(OnGestureListener.Direction.LEFT);
-                    }
+        text = text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
+        if (isVoiceControlLocked) {
+            if (currentVoiceRequest == MODE_VOICE_TITLE) {
+                currentVoiceRequest = MODE_VOICE_ACTION;
+                mNoteTitleView.setText(text);
+                updateNoteSpan();
+                restoreVoiceControl();
+                textSpeaker.speakAfter(getString(R.string.recorded));
+                playActions();
+            } else if (currentVoiceRequest == MODE_VOICE_TEXT) {
+                currentVoiceRequest = MODE_VOICE_ACTION;
+                mNoteTextView.setText(text);
+                updateNoteSpan();
+                restoreVoiceControl();
+                textSpeaker.speakAfter(getString(R.string.recorded));
+                playActions();
+            }
+        } else if (currentVoiceRequest == MODE_VOICE_ACTION) {
+            text = text.toLowerCase();
+            if (text.contains(getString(R.string.repeat))) {
+                onLongTapped();
+            } else {
+                String actionOne = currentActions[0].trim().toLowerCase();
+                String actionTwo = currentActions[1].trim().toLowerCase();
+                String actionThree = currentActions[2].trim().toLowerCase();
+                String actionFour = currentActions[3].trim().toLowerCase();
+                if (text.contains(actionOne.substring(0, (actionOne.length() > 5 ? actionOne.length() - 2 : actionOne.length())))) {
+                    onMovementDetected(OnGestureListener.Direction.UP);
+                } else if (!actionTwo.equals("") && text.contains(actionTwo.substring(0, (actionTwo.length() > 5 ? actionTwo.length() - 2 : actionTwo.length())))) {
+                    onMovementDetected(OnGestureListener.Direction.RIGHT);
+                } else if (text.contains(actionThree.substring(0, (actionThree.length() > 5 ? actionThree.length() - 2 : actionThree.length())))) {
+                    onMovementDetected(OnGestureListener.Direction.DOWN);
+                } else if (!actionFour.equals("") && text.contains(actionFour.substring(0, (actionFour.length() > 5 ? actionFour.length() - 2 : actionFour.length())))) {
+                    onMovementDetected(OnGestureListener.Direction.LEFT);
                 }
             }
         }
